@@ -115,7 +115,12 @@ const PortfolioData = {
       gallery: [
         { src: "assets/images/education/mahasiswa-terbaik.png", caption: "Momen semasa perkuliahan & presentasi" },
         { src: "assets/images/education/Completed All The Courses And Labs in Google Cloud Career Launchpad Generative Ai Track.png", caption: "Momen semasa perkuliahan & presentasi" },
-        { src: "assets/images/education/wisuda-penyerahan-ijazah.jpg", caption: "Momen semasa perkuliahan & presentasi" },
+        { src: "assets/images/education/sertifikat-plba.jpeg", caption: "Momen semasa perkuliahan & presentasi" },
+        { src: "assets/images/education/sertifikat-toefl.jpg", caption: "Momen semasa perkuliahan & presentasi" },
+        { src: "assets/images/education/selesai-sempro.jpeg", caption: "Momen semasa perkuliahan & presentasi" },
+        { src: "assets/images/education/pemindahan-toga.jpeg", caption: "Momen semasa perkuliahan & presentasi" },
+        { src: "assets/images/education/wisuda-penyerahan-ijazah.jpeg", caption: "Momen semasa perkuliahan & presentasi" },
+        { src: "assets/images/education/foto-ijazah.jpeg", caption: "Momen semasa perkuliahan & presentasi" },
       ],
     },
   ],
@@ -145,20 +150,30 @@ certifications: [
     {
       name: "Bootcamp Data Analytics",
       issuer: "KarirNex",
-      year: "2025",
-      image: "assets/images/certifications/sertifikat-bnsp.jpg", 
+      year: "2026",
+      image: "assets/images/certifications/bootcamp/bootcamp-karirnex.jpg", 
     },
-    // Anda bisa menambah data bootcamp lainnya di sini
+    {
+      name: "Bootcamp Data Analytics",
+      issuer: "RevoU",
+      year: "2026",
+      image: "assets/images/certifications/bootcamp/bootcamp-revou.jpg", 
+    },
   ],
   
-  seminars: [
-    {
-      name: "Webinar: AI in Business Analytics",
-      issuer: "Tech Platform",
-      year: "2024",
-      image: "assets/images/certifications/sertifikat-bnsp.jpg", 
-    },
-    // Anda bisa menambah data seminar lainnya di sini
+seminarsRow1: [
+    { name: "seminar ai", image: "assets/images/certifications/seminar/seminar-ai.png" },
+    { name: "seminar bi", image: "assets/images/certifications/seminar/seminar-bi.jpg" },
+    { name: "seminar datadriven", image: "assets/images/certifications/seminar/seminar-datadriven.jpg" },
+    { name: "seminar nocode", image: "assets/images/certifications/seminar/seminar-nocode.png" },
+    { name: "seminar sar", image: "assets/images/certifications/seminar/seminar-sar.jpg" },
+  ],
+
+  seminarsRow2: [
+    { name: "seminar kickandy", image: "assets/images/certifications/seminar/seminar-kickandy.jpg" },
+    { name: "seminar personalbranding", image: "assets/images/certifications/seminar/seminar-personalbranding.png" },
+    { name: "seminar si-deeplearning", image: "assets/images/certifications/seminar/seminar-si-deeplearning.jpg" },
+    { name: "seminar workshop", image: "assets/images/certifications/seminar/workshop.jpg" },
   ],
 
   projects: [
@@ -169,7 +184,7 @@ certifications: [
       course: "Bootcamp KarirNex",
       description:
         "Dashboard interaktif untuk memonitor performa penjualan furniture dan KPI bisnis tahun 2025, lengkap dengan filter dinamis berdasarkan kategori, kota, produk, status order, dan periode penjualan.",
-      image: "assets/images/projects/furniture-sales-dashboard.jpg",
+      image: "assets/images/projects/project-1.png",
       link: "#",
     },
     {
@@ -179,7 +194,7 @@ certifications: [
       course: "Final Project",
       description:
         "Sistem klasifikasi performa akademik mahasiswa menggunakan Random Forest dan XGBoost, disertai dashboard Streamlit interaktif untuk visualisasi data akademik dan analisis faktor yang memengaruhi IPK.",
-      image: "assets/images/projects/academic-performance-dashboard.jpg",
+      image: "assets/images/projects/project-2.jpg",
       link: "#",
     },
     {
@@ -189,7 +204,7 @@ certifications: [
       course: "Business Intelligence",
       description:
         "Dashboard Tableau interaktif untuk menganalisis performa bisnis dan memvisualisasikan data terstruktur, termasuk proses data cleaning dan transformasi untuk menjaga kualitas serta konsistensi data.",
-      image: "assets/images/projects/business-analytics-dashboard.jpg",
+      image: "assets/images/projects/project-3.jpg",
       link: "#",
     },
     {
@@ -199,7 +214,7 @@ certifications: [
       course: "Object-Oriented Programming",
       description:
         "Aplikasi desktop manajemen transaksi dan inventaris toko kelontong dengan fungsi CRUD lengkap, dibangun menerapkan prinsip pemrograman berorientasi objek untuk struktur kode yang rapi dan mudah dirawat.",
-      image: "assets/images/projects/grocery-store-app.jpg",
+      image: "assets/images/projects/project-4.jpg",
       link: "#",
     },
   ],

@@ -61,27 +61,45 @@ class ComponentRenderer {
     }
   }
 
-  #renderHero() {
+#renderHero() {
     const { profile, kpis } = this.data;
     const el = this.#mount("heroContent");
     if (!el) return;
     el.innerHTML = `
       <div class="hero-grid">
-        <div class="hero-photo-frame">
-          <div class="photo-inner">
-            ${this.#img(profile.heroPhoto, "Foto Profil " + profile.name)}
+        <!-- Kolom Kiri: Foto Profil & Badge Di Bawahnya -->
+        <div class="hero-profile-col" style="display: flex; flex-direction: column; align-items: center;">
+          <div class="hero-photo-frame">
+            <!-- Simbol Grafik Batang (Kanan Atas Luar) -->
+            <div class="data-floating-badge badge-chart" title="Data Analytics">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            </div>
+
+            <!-- Simbol Tren Garis (Kiri Bawah Luar) -->
+            <div class="data-floating-badge badge-analytics" title="Data Insights">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+
+            <div class="photo-inner">
+              ${this.#img(profile.heroPhoto, "Foto Profil " + profile.name)}
+            </div>
+            
+            <div class="hero-stat-chip hero-stat-chip--1">
+              <div class="chip-value">${kpis[0].value}</div>
+              <div class="chip-label">${kpis[0].label}</div>
+            </div>
+            <div class="hero-stat-chip hero-stat-chip--2">
+              <div class="chip-value">${kpis[1].value}</div>
+              <div class="chip-label">${kpis[1].label}</div>
+            </div>
           </div>
-          <div class="hero-stat-chip hero-stat-chip--1">
-            <div class="chip-value">${kpis[0].value}</div>
-            <div class="chip-label">${kpis[0].label}</div>
-          </div>
-          <div class="hero-stat-chip hero-stat-chip--2">
-            <div class="chip-value">${kpis[1].value}</div>
-            <div class="chip-label">${kpis[1].label}</div>
-          </div>
+
+          <!-- Posisinya sekarang dipindah ke bawah foto profil -->
+          <span class="eyebrow-badge" style="margin-top: 1.5rem; margin-bottom: 0;">${profile.role}</span>
         </div>
+        
+        <!-- Kolom Kanan: Teks & Tombol (Tanpa Eyebrow Badge) -->
         <div>
-          <span class="eyebrow-badge">${profile.role}</span>
           <h1 class="hero-title">Halo, saya<br><span class="highlight">${profile.name}</span></h1>
           <p class="hero-desc">${profile.summary}</p>
           <div class="hero-actions">
@@ -150,11 +168,14 @@ class ComponentRenderer {
             <ul>${exp.points.map((p) => `<li>${p}</li>`).join("")}</ul>
             
             <!-- 2. Masukkan ke dalam track dua kali (Asli + Duplikat) -->
-            <div class="doc-gallery">
-              <div class="doc-gallery-track">
-                ${galleryItems}
-                ${galleryItems}
+            <div class="gallery-wrapper">
+              <div class="doc-gallery">
+                <div class="doc-gallery-track">
+                  <div class="track-original">${galleryItems}</div>
+                  <div class="track-duplicate">${galleryItems}</div>
+                </div>
               </div>
+              <button class="btn-view-more" onclick="window.toggleGallery(this)">Lihat Selengkapnya &nbsp; ▾</button>
             </div>
             
             <p class="doc-caption">Dokumentasi kegiatan &amp; rapat tim developer</p>
@@ -192,11 +213,14 @@ class ComponentRenderer {
             <ul>${edu.achievements.map((a) => `<li>${a}</li>`).join("")}</ul>
             
             <!-- 2. Masukkan ke dalam track dua kali (Asli + Duplikat) -->
-            <div class="doc-gallery">
-              <div class="doc-gallery-track">
-                ${galleryItems}
-                ${galleryItems}
+            <div class="gallery-wrapper">
+              <div class="doc-gallery">
+                <div class="doc-gallery-track">
+                  <div class="track-original">${galleryItems}</div>
+                  <div class="track-duplicate">${galleryItems}</div>
+                </div>
               </div>
+              <button class="btn-view-more" onclick="window.toggleGallery(this)">Lihat Selengkapnya &nbsp; ▾</button>
             </div>
             
             <p class="doc-caption">Momen semasa perkuliahan &amp; presentasi</p>
@@ -208,26 +232,64 @@ class ComponentRenderer {
   }
 
 #renderCertifications() {
-    // Render Sertifikasi Profesional
+    // 1. Render Sertifikasi Profesional (Bentuk Kotak Grid)
     const certEl = this.#mount("certGrid");
     if (certEl && this.data.certifications) {
       certEl.innerHTML = this.data.certifications.map(c => this.#generateCertHTML(c)).join("");
     }
 
-    // Render Pelatihan & Bootcamp
+    // 2. Render Pelatihan & Bootcamp (Bentuk Kotak Grid)
     const bootcampEl = this.#mount("bootcampGrid");
     if (bootcampEl && this.data.bootcamps) {
       bootcampEl.innerHTML = this.data.bootcamps.map(c => this.#generateCertHTML(c)).join("");
     }
 
-    // Render Sertifikat Pendukung & Seminar
+    // 3. Render Sertifikat Pendukung & Seminar (2 Baris Marquee Bersih Tanpa Duplikat Bersebelahan)
     const seminarEl = this.#mount("seminarGrid");
-    if (seminarEl && this.data.seminars) {
-      seminarEl.innerHTML = this.data.seminars.map(c => this.#generateCertHTML(c)).join("");
+    if (seminarEl && this.data.seminarsRow1 && this.data.seminarsRow2) {
+      seminarEl.className = "seminar-gallery-container reveal";
+      
+      // Ambil data asli row 1 & row 2
+      const row1Data = this.data.seminarsRow1;
+      const row2Data = this.data.seminarsRow2;
+
+      // Fungsi helper untuk merender elemen figure asli
+      const createFigures = (arr) => arr.map(s => 
+        `<figure><div class="doc-thumb">${this.#img(s.image, s.name)}</div></figure>`
+      ).join("");
+
+      const originalRow1 = createFigures(row1Data);
+      const originalRow2 = createFigures(row2Data);
+
+      // Duplikat secukupnya khusus untuk mulusnya animasi berjalan (marquee loop)
+      const cloneRow1 = originalRow1.repeat(3);
+      const cloneRow2 = originalRow2.repeat(3);
+
+      seminarEl.innerHTML = `
+        <div class="gallery-wrapper">
+          <!-- Baris 1: Berjalan ke Kiri -->
+          <div class="doc-gallery">
+            <div class="doc-gallery-track">
+              <div class="track-original">${originalRow1}</div>
+              <div class="track-duplicate">${cloneRow1}</div>
+            </div>
+          </div>
+          
+          <!-- Baris 2: Berjalan ke Kanan (Terbalik) -->
+          <div class="doc-gallery second-row" style="margin-top: 1rem;">
+            <div class="doc-gallery-track track-reverse">
+              <div class="track-original">${originalRow2}</div>
+              <div class="track-duplicate">${cloneRow2}</div>
+            </div>
+          </div>
+          
+          <button class="btn-view-more" onclick="window.toggleGallery(this)">Lihat Selengkapnya &nbsp; ▾</button>
+        </div>
+      `;
     }
   }
 
-  // Fungsi template untuk kartu sertifikat (agar kode tidak berulang)
+  // Fungsi template untuk kartu sertifikat grid (biarkan tetap seperti ini)
   #generateCertHTML(c) {
     return `
       <div class="cert-card reveal">
@@ -241,7 +303,7 @@ class ComponentRenderer {
         </div>
       </div>
     `;
-  }y
+  }
 
   #renderProjects() {
     const el = this.#mount("projectGrid");
@@ -270,7 +332,10 @@ class ComponentRenderer {
     const frame = this.#mount("cvEmbed");
     const dl = this.#mount("cvDownloadBtn");
     const dlTop = this.#mount("cvDownloadBtnTop");
-    if (frame) frame.setAttribute("src", cv.filePath);
+    
+    // Parameter ditambahkan pada baris di bawah ini agar UI PDF bawaan browser disembunyikan
+    if (frame) frame.setAttribute("src", cv.filePath + "#toolbar=0&navpanes=0&scrollbar=0&view=FitH");
+    
     [dl, dlTop].forEach((btn) => {
       if (!btn) return;
       btn.setAttribute("href", cv.filePath);

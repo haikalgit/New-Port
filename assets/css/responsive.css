@@ -1,65 +1,58 @@
 /* =========================================================
-   RESPONSIVE
+   3. RESPONSIVE DESIGN & MOBILE OPTIMIZATION
    ========================================================= */
+/* Penyesuaian Global Variabel untuk Mobile (Mencegah Kebesaran) */
+@media (max-width: 768px) {
+  :root {
+    --fs-xl: 1.5rem;
+    --fs-2xl: 2rem;
+    --fs-3xl: 2.2rem;   /* Judul hero mengecil proporsional */
+    --space-7: 2rem;
+    --space-8: 2.5rem;
+    --space-9: 3rem;    /* Jarak antar section mengecil */
+    --header-height: 64px;
+  }
+}
+
 @media (max-width: 1024px) {
   .hero-grid { grid-template-columns: 1fr; text-align: center; }
   .hero-desc { margin-left: auto; margin-right: auto; }
   .hero-actions { justify-content: center; }
-  .hero-photo-frame { order: -1; max-width: 300px; }
+  .hero-photo-frame { order: -1; max-width: 280px; }
   .kpi-row { grid-template-columns: repeat(2, 1fr); }
-  .grid--3 { grid-template-columns: repeat(2, 1fr); }
-  .grid--4 { grid-template-columns: repeat(2, 1fr); }
+  .grid--3, .grid--4 { grid-template-columns: repeat(2, 1fr); }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 860px) {
   .nav-links { display: none; }
-  .nav-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px; height: 42px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--color-border);
-    background: var(--color-white);
-  }
-  .nav-toggle svg { width: 20px; height: 20px; color: var(--color-primary-dark); }
-
-  .site-header.nav-open .nav-links {
-    display: flex;
-    position: absolute;
-    top: var(--header-height);
-    left: 0; right: 0;
-    flex-direction: column;
-    background: var(--color-white);
-    padding: var(--space-5) var(--space-6);
-    border-bottom: 1px solid var(--color-border);
-    box-shadow: var(--shadow-md);
-    gap: var(--space-4);
-  }
-
-  .hero-title { font-size: var(--fs-2xl); }
-  .doc-gallery { grid-template-columns: repeat(3, 1fr); }
+  .nav-toggle { display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-white); }
+  .site-header.nav-open .nav-links { display: flex; position: absolute; top: var(--header-height); left: 0; right: 0; flex-direction: column; background: var(--color-white); padding: var(--space-5) var(--space-6); border-bottom: 1px solid var(--color-border); box-shadow: var(--shadow-md); gap: var(--space-4); }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .container { padding: 0 var(--space-4); }
   .section { padding: var(--space-7) 0; }
   .grid--2, .grid--3, .grid--4 { grid-template-columns: 1fr; }
-  .kpi-row { grid-template-columns: 1fr 1fr; gap: var(--space-4); }
-  .timeline-item { grid-template-columns: 46px 1fr; gap: var(--space-4); }
-  .footer-grid { grid-template-columns: 1fr; gap: var(--space-6); }
+  
+  /* Hero Mobile Fix */
+  .hero { padding-top: calc(var(--header-height) + 2rem) !important; }
+  .hero-photo-frame { width: 220px !important; height: 220px !important; margin: 1.5rem auto 3rem auto !important; }
+  .hero-stat-chip { margin: 0 !important; }
+  .hero-stat-chip--1 { top: -5px !important; left: -10px !important; transform: scale(0.85) !important; }
+  .hero-stat-chip--2 { bottom: -15px !important; right: -10px !important; transform: scale(0.85) !important; }
+  
+  /* Galeri & Layout Mobile Fix */
+  .doc-gallery-track { display: flex !important; flex-wrap: nowrap !important; width: max-content !important; }
+  .seminar-gallery-container figure { width: 200px !important; }
+  #certGrid, #bootcampGrid { justify-content: center !important; }
+  .cv-embed { height: 120vw; min-height: 500px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 2rem; text-align: left; }
   .footer-bottom { flex-direction: column; text-align: center; }
-  .cv-embed { height: 480px; }
-  .panel { padding: var(--space-5); }
-  .hero-stat-chip { position: static; margin: var(--space-3) auto 0; display: inline-block; }
-  .hero-photo-frame { margin-bottom: var(--space-4); }
 }
 
 @media (max-width: 480px) {
-  .hero-title { font-size: var(--fs-xl); }
-  .section-title { font-size: var(--fs-xl); }
   .kpi-row { grid-template-columns: 1fr; }
   .doc-gallery { grid-template-columns: repeat(2, 1fr); }
-  .cta-panel { padding: var(--space-6); }
+  .cta-panel { padding: var(--space-5); }
 }

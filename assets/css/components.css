@@ -78,10 +78,16 @@
 .btn--sm { padding: var(--space-2) var(--space-4); font-size: var(--fs-xs); }
 .btn:hover svg.icon-arrow { transform: translateX(3px); }
 
-/* ---------- Hero ---------- */
+/* =========================================================
+   HERO SECTION (PAS SATU LAYAR & TIDAK TERPOTONG)
+   ========================================================= */
 .hero {
-  padding-top: calc(var(--header-height) + var(--space-8));
-  padding-bottom: var(--space-9);
+  min-height: calc(100vh - var(--header-height));
+  display: flex;
+  align-items: center;
+  /* Menambahkan jarak atas yang lebih longgar dari navbar */
+  padding-top: calc(var(--header-height) + 2rem);
+  padding-bottom: 2rem;
   position: relative;
   overflow: hidden;
 }
@@ -99,20 +105,100 @@
   z-index: 1;
   display: grid;
   grid-template-columns: 0.85fr 1.15fr;
-  gap: var(--space-8);
+  gap: 3rem;
   align-items: center;
 }
 
+/* Mengatur jarak internal kolom kiri (foto dan badge) agar rapat dan rapi */
+.hero-profile-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Jarak badge "DATA ANALYST" di bawah foto profil */
+.hero-profile-col .eyebrow-badge {
+  margin-top: 2rem !important; /* Diberikan jarak yang lebih renggang & rapi dari foto */
+  margin-bottom: 0 !important;
+}
+
+
+@media (min-width: 769px) {
+  /* Mendorong tombol aksi ke bawah agar posisinya sejajar lurus dengan kotak badge di kiri */
+  .hero-actions {
+    margin-top: 4.5rem; 
+  }
+}
+
+/* ---------- Foto Profil dengan Animasi Data & Lingkaran Berputar ---------- */
 .hero-photo-frame {
   position: relative;
   width: 100%;
-  max-width: 380px;
+  max-width: 340px;
   aspect-ratio: 1 / 1;
   margin: 0 auto;
   border-radius: 50%;
   padding: 10px;
   background: var(--gradient-accent);
 }
+
+/* Efek garis putus-putus berputar di belakang foto */
+.hero-photo-frame::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 2px dashed var(--color-accent);
+  animation: rotateDataRing 20s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes rotateDataRing {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Simbol Grafik / Badge Data yang Melayang di Sekitar Foto */
+.data-floating-badge {
+  position: absolute;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  z-index: 5;
+  animation: floatBadge 4s ease-in-out infinite;
+}
+
+.data-floating-badge svg {
+  width: 26px;
+  height: 26px;
+  stroke-width: 2.2px;
+}
+
+/* Ditarik jauh lebih keluar agar posisinya benar-benar di luar garis lingkaran */
+.badge-chart {
+  top: 10%;
+  right: -45px; 
+  animation-delay: 0s;
+}
+
+.badge-analytics {
+  bottom: 15%;
+  left: -50px; 
+  animation-delay: 2s;
+}
+
+@keyframes floatBadge {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
 .hero-photo-frame .photo-inner {
   width: 100%;
   height: 100%;
@@ -131,11 +217,49 @@
   padding: var(--space-3) var(--space-4);
   box-shadow: var(--shadow-md);
   font-family: var(--font-mono);
+  z-index: 4;
 }
-.hero-stat-chip .chip-value { font-size: var(--fs-lg); font-weight: 700; color: var(--color-primary); line-height: 1; }
-.hero-stat-chip .chip-label { font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-soft); }
-.hero-stat-chip--1 { top: 6%; left: -6%; }
-.hero-stat-chip--2 { bottom: 4%; right: -8%; }
+
+.hero-stat-chip {
+  position: absolute;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-mono);
+  z-index: 4;
+}
+
+.hero-stat-chip .chip-value { 
+  font-size: var(--fs-lg); 
+  font-weight: 700; 
+  color: var(--color-primary); 
+  line-height: 1; 
+}
+
+.hero-stat-chip .chip-label { 
+  font-size: 0.65rem; 
+  letter-spacing: 0.08em; 
+  text-transform: uppercase; 
+  color: var(--color-text-soft); 
+}
+
+/* Kotak IPK: Diposisikan di Kiri Atas menempel pada garis lingkaran */
+.hero-stat-chip--1 { 
+  top: 5%; 
+  left: -15px; 
+  bottom: auto; 
+  right: auto;
+}
+
+/* Kotak Proyek: Diposisikan di Kanan Bawah menempel pada garis lingkaran */
+.hero-stat-chip--2 { 
+  bottom: 5%; 
+  right: -40px; 
+  top: auto; 
+  left: auto;
+}
 
 .eyebrow-badge {
   display: inline-block;
@@ -148,7 +272,7 @@
   border: 1px solid var(--color-border);
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-pill);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
 }
 
 .hero-title { font-size: var(--fs-3xl); }
@@ -158,21 +282,21 @@
   background-clip: text;
   color: transparent;
 }
-.hero-desc { font-size: var(--fs-md); max-width: 560px; margin-bottom: var(--space-6); }
+.hero-desc { font-size: var(--fs-md); max-width: 560px; margin-bottom: var(--space-5); }
 .hero-actions { display: flex; gap: var(--space-4); flex-wrap: wrap; }
 
-/* ---------- KPI dashboard widgets (signature element) ---------- */
+/* ---------- KPI dashboard widgets ---------- */
 .kpi-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-5);
-  margin-top: var(--space-8);
+  gap: var(--space-4);
+  margin-top: 3.5rem !important; /* Diperbaiki dari penulisan ganda sebelumnya */
 }
 .kpi-card {
   background: var(--color-white);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: var(--space-5);
+  padding: var(--space-4) var(--space-5);
   position: relative;
   overflow: hidden;
   transition: transform var(--transition-base), box-shadow var(--transition-base);
@@ -189,7 +313,7 @@
 }
 .kpi-value {
   font-family: var(--font-mono);
-  font-size: var(--fs-2xl);
+  font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--color-primary-dark);
   line-height: 1;
@@ -199,7 +323,7 @@
   color: var(--color-text-muted);
   margin-top: var(--space-2);
 }
-.kpi-sparkline { margin-top: var(--space-4); width: 100%; height: 32px; display: block; }
+.kpi-sparkline { margin-top: var(--space-3); width: 100%; height: 26px; display: block; }
 
 /* ---------- Section cards (general) ---------- */
 .panel {
@@ -301,9 +425,8 @@
   object-fit: contain;
 }
 
-/* KUNCI PERBAIKAN: Mencegah konten membengkak keluar dari batas kotak putih (CSS Grid fix) */
 .timeline-body {
-  min-width: 0; /* Ini sangat penting ditambahkan agar galeri terpotong rapi */
+  min-width: 0; 
   padding-bottom: var(--space-8);
 }
 
@@ -352,53 +475,49 @@
 .doc-gallery {
   display: flex;
   overflow: hidden;
-  width: 100%; /* Membatasi lebar galeri agar pas dengan batas margin .timeline-body */
+  width: 100%; 
   margin-top: var(--space-5);
   position: relative;
-  /* Efek buram seimbang di KIRI (0-3%) dan KANAN (97-100%) */
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 1%, black 99%, transparent 100%);
   mask-image: linear-gradient(to right, transparent 0%, black 1%, black 99%, transparent 100%);
 }
 
 .doc-gallery-track {
   display: flex;
-  gap: var(--space-3); /* Jarak (margin) rapi antar foto, sama dengan desain grid lama */
+  gap: var(--space-3); 
   width: max-content;
-  padding-bottom: 4px; /* Memberi sedikit ruang bawah untuk efek shadow/hover jika ada */
-  animation: scrollMarquee 25s linear infinite; /* Kecepatan diubah menjadi 25s agar lebih santai */
+  padding-bottom: 4px; 
+  animation: scrollMarquee 25s linear infinite; 
 }
 
-/* Animasi jeda jika mouse diarahkan ke foto */
 .doc-gallery-track:hover {
   animation-play-state: paused; 
 }
 
-/* Mengatur ukuran kotak masing-masing gambar */
 .doc-gallery figure {
-  width: 240px; /* Ukuran di-set statis agar rapi */
-  flex-shrink: 0; /* Mencegah gambar menyusut/tergencet */
+  width: 240px; 
+  flex-shrink: 0; 
   margin: 0;
 }
 
-/* Memastikan bingkai dan gambar tetap rapi di dalam ukurannya */
 .doc-thumb {
   aspect-ratio: 4 / 3;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-bg);
-  padding: 8px; /* Padding bingkai putih */
+  padding: 8px; 
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-sizing: border-box; /* Memastikan padding tidak membuat kotak melebar */
+  box-sizing: border-box; 
 }
 
 .doc-thumb img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Memastikan foto mengisi penuh rasio 4:3 tanpa ruang kosong */
-  border-radius: calc(var(--radius-sm) - 2px); /* Menambahkan lengkungan di sudut foto agar serasi dengan bingkai */
+  object-fit: cover; 
+  border-radius: calc(var(--radius-sm) - 2px); 
   transition: transform var(--transition-slow);
 }
 
@@ -414,16 +533,7 @@
   font-style: italic;
 }
 
-@keyframes scrollMarquee {
-  0% { 
-    transform: translateX(0); 
-  }
-  100% { 
-    transform: translateX(calc(-50% - (var(--space-3) / 2))); 
-  }
-}
-
-/* ---------- Lightbox Modal (Desain Elegan Glassmorphism) ---------- */
+/* ---------- Lightbox Modal ---------- */
 .lightbox {
   display: none;
   position: fixed;
@@ -432,11 +542,9 @@
   top: 0;
   width: 100%;
   height: 100%;
-  /* Menggunakan warna putih/kebiruan transparan yang menyesuaikan tema web Anda */
   background-color: rgba(240, 246, 255, 0.65); 
-  /* Efek blur dipertegas untuk menyamarkan konten di belakangnya dengan cantik */
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px); /* Dukungan untuk Safari */
+  -webkit-backdrop-filter: blur(12px); 
   align-items: center;
   justify-content: center;
   opacity: 0;
@@ -449,13 +557,12 @@
   opacity: 1;
 }
 
-/* Bingkai Putih */
 .lightbox-dialog {
   position: relative;
   background: var(--color-white);
   padding: 12px;
   border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(11, 61, 79, 0.15); /* Bayangan dibuat lebih lembut (soft) untuk tema terang */
+  box-shadow: 0 20px 50px rgba(11, 61, 79, 0.15); 
   transform: translateY(30px) scale(0.95);
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   max-width: 90%;
@@ -467,7 +574,6 @@
   transform: translateY(0) scale(1);
 }
 
-/* Gambar di dalam bingkai */
 .lightbox-content {
   border-radius: 6px;
   max-height: calc(90vh - 24px);
@@ -476,7 +582,6 @@
   object-fit: contain;
 }
 
-/* Tombol Silang Bulat */
 .lightbox-close {
   position: absolute;
   top: -15px;
@@ -492,7 +597,7 @@
   font-size: 22px;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(11, 61, 79, 0.15); /* Bayangan lembut */
+  box-shadow: 0 4px 12px rgba(11, 61, 79, 0.15); 
   transition: all 0.2s ease;
   z-index: 2;
 }
@@ -503,13 +608,12 @@
   transform: scale(1.1);
 }
 
-/* Tombol Panah Kiri & Kanan */
 .lightbox-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: var(--color-white); /* Latar tombol diubah jadi putih agar kontras */
-  color: var(--color-primary-dark); /* Ikon panah diubah jadi warna gelap */
+  background: var(--color-white); 
+  color: var(--color-primary-dark); 
   border: none;
   width: 50px;
   height: 50px;
@@ -519,7 +623,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(11, 61, 79, 0.1); /* Tambahan bayangan agar tombol menonjol */
+  box-shadow: 0 4px 15px rgba(11, 61, 79, 0.1); 
   transition: all 0.3s ease;
   z-index: 10;
 }
@@ -538,13 +642,11 @@
   right: 30px;
 }
 
-/* Kursor kaca pembesar di galeri pengalaman dan sertifikasi */
 .doc-thumb img,
 .cert-image img {
   cursor: zoom-in;
 }
 
-/* Penyesuaian tombol panah di layar HP */
 @media (max-width: 768px) {
   .lightbox-btn {
     width: 40px;
@@ -555,7 +657,9 @@
   .lightbox-next { right: 10px; }
 }
 
-/* ---------- Certifications ---------- */
+/* =========================================================
+   KARTU SERTIFIKAT & GRID SYSTEM (Rata Kiri)
+   ========================================================= */
 .cert-card {
   background: var(--color-white);
   border: 1px solid var(--color-border);
@@ -577,20 +681,43 @@
 .cert-issuer { color: var(--color-primary); font-weight: 600; font-size: var(--fs-sm); }
 .cert-year { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--color-text-soft); }
 
-/* =========================================================
-   CENTERING KARTU SERTIFIKAT (1 atau 2 item otomatis di tengah)
-   ========================================================= */
-#certGrid, #bootcampGrid, #seminarGrid {
+#certGrid, #bootcampGrid {
   display: flex !important;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--space-6);
 }
 
-#certGrid > *, #bootcampGrid > *, #seminarGrid > * {
+#certGrid > *, #bootcampGrid > * {
   width: 100%;
   max-width: 340px;
   margin: 0;
+}
+
+/* =========================================================
+   GALERI SEMINAR (2 BARIS MARQUEE FULL WIDTH)
+   ========================================================= */
+#seminarGrid {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important; 
+}
+
+.seminar-gallery-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4); 
+  width: 100% !important;
+  margin-top: var(--space-5);
+}
+
+.seminar-gallery-container .doc-gallery {
+  width: 100% !important;
+  margin-top: 0;
+}
+
+.track-reverse {
+  animation-direction: reverse !important;
 }
 
 /* ---------- Projects ---------- */
@@ -644,6 +771,9 @@
   background: var(--color-white);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
+  /* KODE BARU: Membatasi lebar agar tidak raksasa & menaruhnya di tengah */
+  max-width: 850px; 
+  margin: 0 auto;
 }
 .cv-frame-bar {
   display: flex;
@@ -663,7 +793,14 @@
   color: var(--color-text-soft);
   margin-left: var(--space-3);
 }
-.cv-embed { width: 100%; height: 720px; border: none; display: block; background: var(--color-bg); }
+/* Pastikan tinggi iframe juga sudah disesuaikan agar proporsional dengan lebarnya */
+.cv-embed { 
+  width: 100%; 
+  height: 1150px; 
+  border: none; 
+  display: block; 
+  background: var(--color-bg); 
+}
 .cv-actions { text-align: center; margin-top: var(--space-7); }
 
 /* ---------- Contact / final CTA ---------- */
@@ -703,3 +840,388 @@
   padding: var(--space-3);
 }
 .img-placeholder svg { width: 26px; height: 26px; opacity: 0.6; }
+
+/* =========================================================
+   MEMPERBESAR UKURAN FOTO KHUSUS GALERI SEMINAR
+   ========================================================= */
+.seminar-gallery-container figure {
+  width: 270px !important; /* Diperbesar dari 240px agar tampil "4 foto lebih dikit" */
+}
+
+/* Penyesuaian otomatis agar tidak terlalu raksasa saat dibuka di HP */
+@media (max-width: 718px) {
+  .seminar-gallery-container figure {
+    width: 210px !important; 
+  }
+}
+
+/* =========================================================
+   PENYESUAIAN KARTU SERTIFIKAT UNTUK LAYAR HP (MOBILE)
+   ========================================================= */
+@media (max-width: 768px) {
+  #certGrid, #bootcampGrid {
+    justify-content: center !important; /* Memaksa kartu ke tengah khusus di HP */
+  }
+}
+
+/* =========================================================
+   PENGATURAN KHUSUS MOBILE (RESPONSIF HERO & CHIP)
+   ========================================================= */
+@media (max-width: 768px) {
+  /* Menyesuaikan ukuran frame foto di HP agar tidak terlalu besar */
+  .hero-photo-frame {
+    width: 260px !important;
+    height: 260px !important;
+    margin: 1.5rem auto 3rem auto !important;
+  }
+
+  /* Mengatur ulang posisi chip IPK di HP */
+  .hero-stat-chip--1 {
+    top: 5% !important;
+    left: -10px !important;
+    transform: scale(0.85);
+  }
+
+  /* Mengatur ulang posisi kotak Proyek di HP agar tidak terlalu turun */
+  .hero-stat-chip--2 {
+    bottom: -22px !important; /* Ditarik pas menempel di garis bawah lingkaran */
+    left: 50% !important;
+    transform: translateX(-50%) scale(0.85); /* Diskalakan sedikit agar pas di layar HP */
+  }
+
+  /* Mengatur posisi simbol grafik luar agar tidak keluar dari layar HP */
+  .badge-chart {
+    top: 8% !important;
+    right: -60px !important;
+    width: 50px !important;
+    height: 50px !important;
+  }
+  
+  .badge-chart svg {
+    width: 25px !important;
+    height: 25px !important;
+  }
+
+  .badge-analytics {
+    bottom: 8% !important;
+    left: -60px !important;
+    width: 50px !important;
+    height: 50px !important;
+  }
+  
+  .badge-analytics svg {
+    width: 25px !important;
+    height: 25px !important;
+  }
+}
+
+/* =========================================================
+   1. FIX GALERI SEMINAR DI MOBILE AGAR TIDAK PATAH
+   ========================================================= */
+@media (max-width: 768px) {
+  .doc-gallery-track {
+    display: flex !important;
+    flex-wrap: nowrap !important; 
+    width: max-content !important; 
+  }
+  .seminar-gallery-container figure {
+    width: 220px !important; 
+  }
+}
+
+/* =========================================================
+   2. FIX CV PREVIEW FULL HEIGHT (TIDAK TERPOTONG)
+   ========================================================= */
+.cv-embed { 
+  width: 100%; 
+  border: none; 
+  display: block; 
+  background: var(--color-bg); 
+  height: 1150px; 
+}
+
+@media (max-width: 768px) {
+  .cv-embed {
+    height: 140vw; 
+    min-height: 600px;
+  }
+}
+
+/* =========================================================
+   FOOTER (STYLING BARU YANG LEBIH ELEGAN)
+   ========================================================= */
+.site-footer {
+  background-color: var(--color-primary-dark); /* Menggunakan warna biru gelap tema Anda */
+  color: #E4EEFC; 
+  padding: 5rem 0 2rem 0;
+  margin-top: 4rem;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1.2fr;
+  gap: 3rem;
+  margin-bottom: 2rem; 
+  border-bottom: none !important; /* KUNCI: Menghilangkan garis ekstra */
+  padding-bottom: 0;
+}
+
+/* Kolom 1: Brand & Desc */
+.footer-logo {
+  margin-bottom: 1.5rem;
+  color: #ffffff;
+}
+.footer-logo .brand-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+.footer-desc {
+  color: #94A3B8; /* Warna abu-abu kebiruan yang elegan */
+  font-size: 0.95rem;
+  line-height: 1.8;
+  max-width: 90%;
+}
+
+/* Judul Kolom (Tautan Cepat & Hubungi Saya) */
+.footer-title {
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+/* Kolom 2: Links */
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem; /* Membuat jarak antar link menjadi lebih rapat */
+}
+.footer-links a {
+  color: #94A3B8;
+  text-decoration: none;
+  transition: color 0.3s ease, transform 0.3s ease;
+  font-size: 0.95rem;
+  display: inline-block;
+}
+.footer-links a:hover { 
+  color: var(--color-accent);
+  transform: translateX(4px); /* Efek hover bergeser sedikit ke kanan */
+}
+
+/* Kolom 3: Kontak & Ikon (FIX UKURAN IKON) */
+.footer-contact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem; /* Membuat jarak antar info kontak lebih rapat */
+}
+.footer-contact-item {
+  display: flex;
+  align-items: flex-start; 
+  gap: 1rem;
+  color: #94A3B8;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+a.footer-contact-item:hover {
+  color: var(--color-accent);
+}
+
+/* KUNCI PERBAIKAN: Mengunci ukuran SVG agar tidak membesar */
+.footer-contact-item svg {
+  width: 20px !important;
+  height: 20px !important;
+  flex-shrink: 0; /* Mencegah ikon menyusut atau membesar */
+  color: var(--color-accent);
+  margin-top: 2px; /* Menyelaraskan ikon dengan teks */
+}
+
+.footer-contact-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  word-break: break-word; 
+}
+
+/* Mengubah kotak menjadi garis atas & bawah saja + teks di tengah */
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: none;
+  border-right: none;
+  border-radius: 0; /* Menghilangkan efek melengkung */
+  background: transparent; /* Menghapus warna latar belakang kotak */
+  padding: 1.5rem 0; /* Jarak ruang atas dan bawah ke garis */
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+  color: #94A3B8;
+  font-size: 0.85rem;
+}
+
+/* =========================================================
+   RESPONSIVE FOOTER UNTUK MOBILE & TABLET
+   ========================================================= */
+@media (max-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr; /* Menjadi 2 kolom di tablet */
+    gap: 3rem;
+  }
+  .footer-brand {
+    grid-column: span 2; /* Bio mengambil lebar penuh di atas */
+  }
+  .footer-desc {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1fr; /* Menjadi 1 kolom berderet ke bawah di HP */
+    gap: 2.5rem;
+  }
+  .footer-brand {
+    grid-column: span 1;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+}
+
+/* =========================================================
+   GALERI EXPAND (LIHAT SELENGKAPNYA)
+   ========================================================= */
+.gallery-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Memosisikan tombol di kanan bawah */
+  width: 100%;
+  position: relative;
+}
+
+/* Memastikan foto original & duplikat terbaca sejajar oleh flexbox */
+.track-original, .track-duplicate {
+  display: contents; 
+}
+
+/* Desain Tombol */
+.btn-view-more {
+  background: var(--color-white);
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-border);
+  padding: 0.4rem 1.2rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.btn-view-more:hover {
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+
+/* =========================================================
+   GRID MODAL (ALBUM VIEW)
+   ========================================================= */
+.grid-dialog {
+  width: 100%;
+  max-width: 800px !important; /* Luas container sama dengan panel pengalaman */
+  background: var(--color-bg-alt, #ffffff);
+  padding: 2rem !important;
+  max-height: 85vh; /* Membatasi tinggi agar tidak kepanjangan */
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-dialog-header {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  color: var(--color-primary-dark);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.grid-modal-body {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 foto berjejer di Desktop */
+  gap: 1.5rem;
+  overflow-y: auto; /* Memunculkan scroll hanya di dalam kotak jika foto sangat banyak */
+  padding-right: 0.5rem;
+}
+
+.grid-modal-body figure {
+  margin: 0;
+  width: 100% !important;
+}
+
+/* Mengatur prioritas agar Preview Zoom tetap muncul di atas Album */
+#gridModal { z-index: 9998; }
+#imageLightbox { z-index: 9999; }
+
+/* Proporsi Khusus Mobile (HP) */
+@media (max-width: 768px) {
+  .grid-modal-body {
+    grid-template-columns: repeat(2, 1fr); /* 2 foto berjejer di HP agar rapi */
+    gap: 1rem;
+  }
+  .grid-dialog {
+    padding: 1.5rem !important;
+  }
+  .grid-dialog-header {
+    font-size: var(--fs-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  /* Merapatkan jarak lencana Data Analyst agar dekat dengan foto profil di HP */
+  .hero-profile-col .eyebrow-badge {
+    margin-top: -0rem !important; 
+    margin-bottom: 0 !important;
+  }
+}
+
+/* =========================================================
+   MENGECILKAN UKURAN KEAHLIAN (SKILLS) SECARA TOTAL DI MOBILE
+   ========================================================= */
+@media (max-width: 768px) {
+  /* Mengecilkan seluruh teks judul dan sub-teks di section keahlian */
+  #keahlian, .section-keahlian, [id*="keahlian"] {
+    font-size: 0.8rem !important;
+  }
+
+  /* Mengecilkan ukuran kartu/kontainer utama keahlian */
+  #keahlian div, .skills-card, [class*="skill"] {
+    font-size: 0.85rem !important;
+  }
+
+  /* Mengecilkan semua tombol/badge/chip keahlian di dalam perangkat mobile */
+  #keahlian span, #keahlian a, #keahlian button, 
+  .skills-card span, .skills-card div {
+    font-size: 0.75rem !important;
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.35rem !important;
+    padding-left: 0.65rem !important;
+    padding-right: 0.65rem !important;
+  }
+}
+
