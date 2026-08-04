@@ -29,8 +29,10 @@
   --fs-md: 1.125rem;
   --fs-lg: 1.35rem;
   --fs-xl: 1.85rem;
-  --fs-2xl: 2.5rem;
-  --fs-3xl: 3.4rem;
+  
+  /* KUNCI PERBAIKAN: Memperbesar font judul section di Desktop */
+  --fs-2xl: 3rem; /* Diperbesar dari 2.5rem menjadi 3rem */
+  --fs-3xl: 3.6rem; /* Disesuaikan sedikit agar tetap proporsional */
 
   /* Spacing Default (Desktop) */
   --space-1: 0.25rem;

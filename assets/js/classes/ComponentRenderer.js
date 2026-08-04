@@ -1,13 +1,8 @@
 /**
  * ComponentRenderer.js
  * ---------------------------------------------------------
- * Bertanggung jawab merender seluruh konten dinamis (KPI, skills,
- * pengalaman, pendidikan, sertifikasi, proyek, CV) ke dalam
- * placeholder <section> di index.html berdasarkan PortfolioData.
- *
- * Ini adalah satu-satunya class yang perlu Anda pahami jika ingin
- * mengubah STRUKTUR tampilan. Untuk mengubah ISI, cukup edit
- * assets/js/data/portfolio-data.js.
+ * Bertanggung jawab merender seluruh konten dinamis berdasarkan 
+ * PortfolioData dan bahasa aktif (window.currentLang).
  * ---------------------------------------------------------
  */
 class ComponentRenderer {
@@ -29,7 +24,10 @@ class ComponentRenderer {
     ImageFallback.watch(document);
   }
 
-  // ---------- helpers ----------
+  #lang() {
+    return window.currentLang || 'id';
+  }
+
   #mount(id) {
     return document.getElementById(id);
   }
@@ -52,7 +50,6 @@ class ComponentRenderer {
     </svg>`;
   }
 
-  // ---------- sections ----------
   #renderNav() {
     const { site } = this.data;
     const brand = this.#mount("brandSlot");
@@ -61,50 +58,47 @@ class ComponentRenderer {
     }
   }
 
-#renderHero() {
+  #renderHero() {
     const { profile, kpis } = this.data;
     const el = this.#mount("heroContent");
+    const lang = this.#lang();
     if (!el) return;
+
+    const summaryText = typeof profile.summary === 'object' ? profile.summary[lang] : profile.summary;
+    const greetingText = typeof profile.greeting === 'object' ? profile.greeting[lang] : "Halo, saya";
+    const btnCvText = lang === 'en' ? "View My CV" : "Lihat CV Saya";
+    const btnExploreText = lang === 'en' ? "Explore Portfolio" : "Jelajahi Portofolio";
+
     el.innerHTML = `
       <div class="hero-grid">
-        <!-- Kolom Kiri: Foto Profil & Badge Di Bawahnya -->
         <div class="hero-profile-col" style="display: flex; flex-direction: column; align-items: center;">
           <div class="hero-photo-frame">
-            <!-- Simbol Grafik Batang (Kanan Atas Luar) -->
             <div class="data-floating-badge badge-chart" title="Data Analytics">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
             </div>
-
-            <!-- Simbol Tren Garis (Kiri Bawah Luar) -->
             <div class="data-floating-badge badge-analytics" title="Data Insights">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             </div>
-
             <div class="photo-inner">
               ${this.#img(profile.heroPhoto, "Foto Profil " + profile.name)}
             </div>
-            
             <div class="hero-stat-chip hero-stat-chip--1">
               <div class="chip-value">${kpis[0].value}</div>
-              <div class="chip-label">${kpis[0].label}</div>
+              <div class="chip-label">${typeof kpis[0].label === 'object' ? kpis[0].label[lang] : kpis[0].label}</div>
             </div>
             <div class="hero-stat-chip hero-stat-chip--2">
               <div class="chip-value">${kpis[1].value}</div>
-              <div class="chip-label">${kpis[1].label}</div>
+              <div class="chip-label">${typeof kpis[1].label === 'object' ? kpis[1].label[lang] : kpis[1].label}</div>
             </div>
           </div>
-
-          <!-- Posisinya sekarang dipindah ke bawah foto profil -->
           <span class="eyebrow-badge" style="margin-top: 1.5rem; margin-bottom: 0;">${profile.role}</span>
         </div>
-        
-        <!-- Kolom Kanan: Teks & Tombol (Tanpa Eyebrow Badge) -->
         <div>
-          <h1 class="hero-title">Halo, saya<br><span class="highlight">${profile.name}</span></h1>
-          <p class="hero-desc">${profile.summary}</p>
+          <h1 class="hero-title">${greetingText}<br><span class="highlight">${profile.name}</span></h1>
+          <p class="hero-desc">${summaryText}</p>
           <div class="hero-actions">
-            <a href="#cv" class="btn btn--primary">${IconLibrary.get("fileText")} Lihat CV Saya</a>
-            <a href="#portofolio" class="btn btn--ghost">Jelajahi Portofolio ${IconLibrary.get("arrowRight")}</a>
+            <a href="#cv" class="btn btn--primary">${IconLibrary.get("fileText")} ${btnCvText}</a>
+            <a href="#portofolio" class="btn btn--ghost">${btnExploreText} ${IconLibrary.get("arrowRight")}</a>
           </div>
         </div>
       </div>
@@ -113,42 +107,74 @@ class ComponentRenderer {
 
   #renderKpis() {
     const el = this.#mount("kpiRow");
+    const lang = this.#lang();
     if (!el) return;
     el.innerHTML = this.data.kpis
       .map(
-        (k) => `
-      <div class="kpi-card" data-tag="${k.tag}">
-        <div class="kpi-value">${k.value}</div>
-        <div class="kpi-label">${k.label}</div>
-        ${this.#sparkline(k.spark)}
-      </div>`
+        (k) => {
+          const tagText = typeof k.tag === 'object' ? k.tag[lang] : k.tag;
+          const labelText = typeof k.label === 'object' ? k.label[lang] : k.label;
+          return `
+          <div class="kpi-card" data-tag="${tagText}">
+            <div class="kpi-value">${k.value}</div>
+            <div class="kpi-label">${labelText}</div>
+            ${this.#sparkline(k.spark)}
+          </div>`;
+        }
       )
       .join("");
   }
 
   #renderSkills() {
-    const { technical, soft } = this.data.skills;
+    const { technical, soft, title, subtitle, technicalTitle, softTitle } = this.data.skills;
     const el = this.#mount("skillsPanel");
+    const lang = this.#lang();
+    
+    const sectionTitleEl = document.querySelector('#keahlian .section-title');
+    const sectionSubEl = document.querySelector('#keahlian .section-subtitle');
+    
+    if (sectionTitleEl) sectionTitleEl.textContent = typeof title === 'object' ? title[lang] : title;
+    if (sectionSubEl) sectionSubEl.textContent = typeof subtitle === 'object' ? subtitle[lang] : subtitle;
+
     if (!el) return;
+
+    const tTitle = typeof technicalTitle === 'object' ? technicalTitle[lang] : "Technical Skills & Tools";
+    const sTitle = typeof softTitle === 'object' ? softTitle[lang] : "Soft Skills";
+
+    const techArr = Array.isArray(technical) ? technical : (technical[lang] || technical['id']);
+    const softArr = Array.isArray(soft) ? soft : (soft[lang] || soft['id']);
+
     const chips = (arr) => arr.map((s) => `<span class="tag-chip">${s}</span>`).join("");
+    
     el.innerHTML = `
       <div class="tag-group">
-        <div class="tag-group-title">Technical Skills &amp; Tools</div>
-        <div class="tag-cloud">${chips(technical)}</div>
+        <div class="tag-group-title">${tTitle}</div>
+        <div class="tag-cloud">${chips(techArr)}</div>
       </div>
       <div class="tag-group">
-        <div class="tag-group-title">Soft Skills</div>
-        <div class="tag-cloud">${chips(soft)}</div>
+        <div class="tag-group-title">${sTitle}</div>
+        <div class="tag-cloud">${chips(softArr)}</div>
       </div>
     `;
   }
 
   #renderExperience() {
     const el = this.#mount("experienceList");
+    const lang = this.#lang();
     if (!el) return;
+
+    const panelTitle = document.querySelector('#pengalaman .panel-header h3');
+    if (panelTitle) panelTitle.textContent = lang === 'en' ? 'Work Experience' : 'Pengalaman Kerja';
+
     el.innerHTML = this.data.experience
       .map((exp) => {
-        // 1. Buat string elemen foto
+        const titleText = typeof exp.title === 'object' ? exp.title[lang] : exp.title;
+        const periodText = typeof exp.period === 'object' ? exp.period[lang] : exp.period;
+        const locationText = typeof exp.location === 'object' ? exp.location[lang] : exp.location;
+        const pointsArr = typeof exp.points === 'object' && exp.points[lang] ? exp.points[lang] : exp.points;
+        const viewMoreText = lang === 'en' ? 'More Documentation ▾' : 'Dokumentasi Selengkapnya ▾';
+        const captionText = lang === 'en' ? 'Developer team activity & meeting documentation' : 'Dokumentasi kegiatan & rapat tim developer';
+
         const galleryItems = exp.gallery
           .map((g) => `<figure><div class="doc-thumb">${this.#img(g.src, g.caption)}</div></figure>`)
           .join("");
@@ -159,15 +185,13 @@ class ComponentRenderer {
             <div class="timeline-logo">${this.#img(exp.logo, exp.org + " logo")}</div>
           </div>
           <div class="timeline-body">
-            <h4 class="entry-title">${exp.title}</h4>
+            <h4 class="entry-title">${titleText}</h4>
             <div class="entry-org">${exp.org}</div>
             <div class="meta-row">
-              <span class="meta-pill">${IconLibrary.get("calendar")} ${exp.period}</span>
-              <span class="meta-pill">${IconLibrary.get("pin")} ${exp.location}</span>
+              <span class="meta-pill">${IconLibrary.get("calendar")} ${periodText}</span>
+              <span class="meta-pill">${IconLibrary.get("pin")} ${locationText}</span>
             </div>
-            <ul>${exp.points.map((p) => `<li>${p}</li>`).join("")}</ul>
-            
-            <!-- 2. Masukkan ke dalam track dua kali (Asli + Duplikat) -->
+            <ul>${pointsArr.map((p) => `<li>${p}</li>`).join("")}</ul>
             <div class="gallery-wrapper">
               <div class="doc-gallery">
                 <div class="doc-gallery-track">
@@ -175,10 +199,9 @@ class ComponentRenderer {
                   <div class="track-duplicate">${galleryItems}</div>
                 </div>
               </div>
-              <button class="btn-view-more" onclick="window.toggleGallery(this)">Lihat Selengkapnya &nbsp; ▾</button>
+              <button class="btn-view-more" onclick="window.toggleGallery(this)">${viewMoreText}</button>
             </div>
-            
-            <p class="doc-caption">Dokumentasi kegiatan &amp; rapat tim developer</p>
+            <p class="doc-caption">${captionText}</p>
           </div>
         </div>
         `;
@@ -186,12 +209,25 @@ class ComponentRenderer {
       .join("");
   }
 
-#renderEducation() {
+  #renderEducation() {
     const el = this.#mount("educationList");
+    const lang = this.#lang();
     if (!el) return;
+
+    const panelTitle = document.querySelector('#pendidikan .panel-header h3');
+    if (panelTitle) panelTitle.textContent = lang === 'en' ? 'Education' : 'Pendidikan';
+
     el.innerHTML = this.data.education
       .map((edu) => {
-        // 1. Buat string elemen foto
+        const degreeText = typeof edu.degree === 'object' ? edu.degree[lang] : edu.degree;
+        const periodText = typeof edu.period === 'object' ? edu.period[lang] : edu.period;
+        const statusArr = typeof edu.status === 'object' && edu.status[lang] ? edu.status[lang] : edu.status;
+        const gpaText = typeof edu.gpa === 'object' ? edu.gpa[lang] : edu.gpa;
+        const thesisText = typeof edu.thesis === 'object' ? edu.thesis[lang] : edu.thesis;
+        const achievementsArr = typeof edu.achievements === 'object' && edu.achievements[lang] ? edu.achievements[lang] : edu.achievements;
+        const viewMoreText = lang === 'en' ? 'More Documentation ▾' : 'Dokumentasi Selengkapnya ▾';
+        const captionText = lang === 'en' ? 'Lectures & presentation moments' : 'Momen semasa perkuliahan & presentasi';
+
         const galleryItems = edu.gallery
           .map((g) => `<figure><div class="doc-thumb">${this.#img(g.src, g.caption)}</div></figure>`)
           .join("");
@@ -202,17 +238,15 @@ class ComponentRenderer {
             <div class="timeline-logo">${this.#img(edu.logo, edu.institution + " logo")}</div>
           </div>
           <div class="timeline-body">
-            <h4 class="entry-title">${edu.degree}</h4>
+            <h4 class="entry-title">${degreeText}</h4>
             <div class="entry-org">${edu.institution}</div>
             <div class="meta-row">
-              <span class="meta-pill">${IconLibrary.get("calendar")} ${edu.period}</span>
-              <span class="meta-pill">${edu.status.join(" · ")}</span>
-              <span class="meta-pill">${edu.gpa}</span>
+              <span class="meta-pill">${IconLibrary.get("calendar")} ${periodText}</span>
+              <span class="meta-pill">${statusArr.join(" · ")}</span>
+              <span class="meta-pill">${gpaText}</span>
             </div>
-            <div class="entry-thesis">${edu.thesis}</div>
-            <ul>${edu.achievements.map((a) => `<li>${a}</li>`).join("")}</ul>
-            
-            <!-- 2. Masukkan ke dalam track dua kali (Asli + Duplikat) -->
+            <div class="entry-thesis">${thesisText}</div>
+            <ul>${achievementsArr.map((a) => `<li>${a}</li>`).join("")}</ul>
             <div class="gallery-wrapper">
               <div class="doc-gallery">
                 <div class="doc-gallery-track">
@@ -220,10 +254,9 @@ class ComponentRenderer {
                   <div class="track-duplicate">${galleryItems}</div>
                 </div>
               </div>
-              <button class="btn-view-more" onclick="window.toggleGallery(this)">Lihat Selengkapnya &nbsp; ▾</button>
+              <button class="btn-view-more" onclick="window.toggleGallery(this)">${viewMoreText}</button>
             </div>
-            
-            <p class="doc-caption">Momen semasa perkuliahan &amp; presentasi</p>
+            <p class="doc-caption">${captionText}</p>
           </div>
         </div>
         `;
@@ -231,71 +264,62 @@ class ComponentRenderer {
       .join("");
   }
 
-#renderCertifications() {
-    // 1. Render Sertifikasi Profesional (Bentuk Kotak Grid)
+  #renderCertifications() {
     const certEl = this.#mount("certGrid");
+    const lang = this.#lang();
     if (certEl && this.data.certifications) {
-      certEl.innerHTML = this.data.certifications.map(c => this.#generateCertHTML(c)).join("");
+      certEl.innerHTML = this.data.certifications.map(c => this.#generateCertHTML(c, lang)).join("");
     }
 
-    // 2. Render Pelatihan & Bootcamp (Bentuk Kotak Grid)
     const bootcampEl = this.#mount("bootcampGrid");
     if (bootcampEl && this.data.bootcamps) {
-      bootcampEl.innerHTML = this.data.bootcamps.map(c => this.#generateCertHTML(c)).join("");
+      bootcampEl.innerHTML = this.data.bootcamps.map(c => this.#generateCertHTML(c, lang)).join("");
     }
 
-    // 3. Render Sertifikat Pendukung & Seminar (2 Baris Marquee Bersih Tanpa Duplikat Bersebelahan)
     const seminarEl = this.#mount("seminarGrid");
-    if (seminarEl && this.data.seminarsRow1 && this.data.seminarsRow2) {
+    if (seminarEl) {
       seminarEl.className = "seminar-gallery-container reveal";
+      const viewMoreText = lang === 'en' ? 'More Documentation ▾' : 'Dokumentasi Selengkapnya ▾';
       
-      // Ambil data asli row 1 & row 2
-      const row1Data = this.data.seminarsRow1;
-      const row2Data = this.data.seminarsRow2;
+      const row1Data = this.data.seminarsRow1 || [];
+      const row2Data = this.data.seminarsRow2 || [];
 
-      // Fungsi helper untuk merender elemen figure asli
       const createFigures = (arr) => arr.map(s => 
         `<figure><div class="doc-thumb">${this.#img(s.image, s.name)}</div></figure>`
       ).join("");
 
       const originalRow1 = createFigures(row1Data);
       const originalRow2 = createFigures(row2Data);
-
-      // Duplikat secukupnya khusus untuk mulusnya animasi berjalan (marquee loop)
       const cloneRow1 = originalRow1.repeat(3);
       const cloneRow2 = originalRow2.repeat(3);
 
       seminarEl.innerHTML = `
         <div class="gallery-wrapper">
-          <!-- Baris 1: Berjalan ke Kiri -->
           <div class="doc-gallery">
             <div class="doc-gallery-track">
               <div class="track-original">${originalRow1}</div>
               <div class="track-duplicate">${cloneRow1}</div>
             </div>
           </div>
-          
-          <!-- Baris 2: Berjalan ke Kanan (Terbalik) -->
           <div class="doc-gallery second-row" style="margin-top: 1rem;">
             <div class="doc-gallery-track track-reverse">
               <div class="track-original">${originalRow2}</div>
               <div class="track-duplicate">${cloneRow2}</div>
             </div>
           </div>
-          
-          <button class="btn-view-more" onclick="window.toggleGallery(this)">Lihat Selengkapnya &nbsp; ▾</button>
+          <button class="btn-view-more" onclick="window.toggleGallery(this)">${viewMoreText}</button>
         </div>
       `;
     }
   }
 
-  // Fungsi template untuk kartu sertifikat grid (biarkan tetap seperti ini)
-  #generateCertHTML(c) {
+  #generateCertHTML(c, lang) {
+    const nameText = typeof c.name === 'object' ? c.name[lang] : c.name;
     return `
       <div class="cert-card reveal">
-        <div class="cert-image">${this.#img(c.image, c.name + " - " + c.issuer)}</div>
+        <div class="cert-image">${this.#img(c.image, nameText + " - " + c.issuer)}</div>
         <div class="cert-body">
-          <h4 class="cert-name">${c.name}</h4>
+          <h4 class="cert-name">${nameText}</h4>
           <div class="cert-meta">
             <span class="cert-issuer">${c.issuer}</span>
             <span class="cert-year">${c.year}</span>
@@ -307,22 +331,32 @@ class ComponentRenderer {
 
   #renderProjects() {
     const el = this.#mount("projectGrid");
+    const lang = this.#lang();
     if (!el) return;
+    const detailText = lang === 'en' ? 'Project Detail' : 'Detail Proyek';
+
     el.innerHTML = this.data.projects
       .map(
-        (p) => `
-      <article class="project-card reveal">
-        <div class="project-media">
-          ${this.#img(p.image, p.title)}
-          <span class="project-tool-tag">${p.tool}</span>
-        </div>
-        <div class="project-body">
-          <div class="project-date">${p.course} • ${p.date}</div>
-          <h4 class="project-title">${p.title}</h4>
-          <p class="project-desc">${p.description}</p>
-          <a href="${p.link}" class="project-link">Detail Proyek ${IconLibrary.get("arrowRight")}</a>
-        </div>
-      </article>`
+        (p) => {
+          const titleText = typeof p.title === 'object' ? p.title[lang] : p.title;
+          const descText = typeof p.description === 'object' ? p.description[lang] : p.description;
+          const dateText = typeof p.date === 'object' ? p.date[lang] : p.date;
+          const courseText = typeof p.course === 'object' ? p.course[lang] : p.course;
+
+          return `
+          <article class="project-card reveal">
+            <div class="project-media" onclick="openLightbox('${p.image}')" style="cursor: zoom-in;">
+              <img src="${p.image}" alt="${titleText}" style="width: 100%; height: 100%; object-fit: cover !important;">
+              <span class="project-tool-tag">${p.tool}</span>
+            </div>
+            <div class="project-body">
+              <div class="project-date">${courseText} • ${dateText}</div>
+              <h4 class="project-title">${titleText}</h4>
+              <p class="project-desc">${descText}</p>
+              <a href="${p.link}" class="project-link">${detailText} ${IconLibrary.get("arrowRight")}</a>
+            </div>
+          </article>`;
+        }
       )
       .join("");
   }
@@ -332,10 +366,9 @@ class ComponentRenderer {
     const frame = this.#mount("cvEmbed");
     const dl = this.#mount("cvDownloadBtn");
     const dlTop = this.#mount("cvDownloadBtnTop");
-    
-    // Parameter ditambahkan pada baris di bawah ini agar UI PDF bawaan browser disembunyikan
-    if (frame) frame.setAttribute("src", cv.filePath + "#toolbar=0&navpanes=0&scrollbar=0&view=FitH");
-    
+
+    if (frame) frame.setAttribute("src", cv.previewImage);
+
     [dl, dlTop].forEach((btn) => {
       if (!btn) return;
       btn.setAttribute("href", cv.filePath);
@@ -346,11 +379,15 @@ class ComponentRenderer {
   #renderFooter() {
     const { profile } = this.data;
     const el = this.#mount("footerContact");
+    const lang = this.#lang();
     if (!el) return;
+
+    const locationText = typeof profile.location === 'object' ? profile.location[lang] : profile.location;
+
     el.innerHTML = `
       <li>${IconLibrary.get("mail")} <a href="mailto:${profile.email}">${profile.email}</a></li>
       <li>${IconLibrary.get("linkedin")} <a href="${profile.linkedinUrl}" target="_blank" rel="noopener">${profile.linkedin}</a></li>
-      <li>${IconLibrary.get("pin")} ${profile.location}</li>
+      <li>${IconLibrary.get("pin")} ${locationText}</li>
     `;
     const year = this.#mount("footerYear");
     if (year) year.textContent = new Date().getFullYear();

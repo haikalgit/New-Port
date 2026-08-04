@@ -1,27 +1,59 @@
 /* =========================================================
-   3. RESPONSIVE DESIGN & MOBILE OPTIMIZATION
+   6. RESPONSIVE DESIGN & MOBILE OPTIMIZATION
    ========================================================= */
-/* Penyesuaian Global Variabel untuk Mobile (Mencegah Kebesaran) */
-@media (max-width: 768px) {
-  :root {
-    --fs-xl: 1.5rem;
-    --fs-2xl: 2rem;
-    --fs-3xl: 2.2rem;   /* Judul hero mengecil proporsional */
-    --space-7: 2rem;
-    --space-8: 2.5rem;
-    --space-9: 3rem;    /* Jarak antar section mengecil */
-    --header-height: 64px;
-  }
+
+/* =========================================================
+   KUNCI PERBAIKAN GLOBAL: URUTAN GALERI, CAPTION & TOMBOL
+   ========================================================= */
+.timeline-body {
+  display: flex;
+  flex-direction: column;
 }
+
+.timeline-body .gallery-wrapper {
+  display: contents; 
+}
+
+.timeline-body .doc-gallery {
+  order: 1;
+  margin-top: 0.5rem;
+}
+
+.timeline-body .doc-caption {
+  order: 2;
+  text-align: center !important;
+  margin-top: 0.75rem;
+  margin-bottom: 1.5rem; 
+  display: block;
+  width: 100%;
+}
+
+.timeline-body .btn-view-more {
+  order: 3;
+  align-self: flex-end; 
+  margin-top: 0 !important;
+}
+
+.seminar-gallery-container .gallery-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: 100%;
+}
+/* ========================================================= */
+
 
 @media (max-width: 1024px) {
   .hero-grid { grid-template-columns: 1fr; text-align: center; }
+  .hero-profile-col { align-items: center; }
   .hero-desc { margin-left: auto; margin-right: auto; }
-  .hero-actions { justify-content: center; }
+  .hero-actions { justify-content: center; margin-top: 2rem; }
   .hero-photo-frame { order: -1; max-width: 280px; }
   .kpi-row { grid-template-columns: repeat(2, 1fr); }
   .grid--3, .grid--4 { grid-template-columns: repeat(2, 1fr); }
   .footer-grid { grid-template-columns: 1fr 1fr; }
+  .footer-brand { grid-column: span 2; }
+  .footer-desc { max-width: 100%; }
 }
 
 @media (max-width: 860px) {
@@ -31,28 +63,266 @@
 }
 
 @media (max-width: 768px) {
+  :root {
+    --fs-xl: 1.25rem;
+    --fs-2xl: 1.6rem;
+    --fs-3xl: 2rem;
+    --space-7: 1.5rem;
+    --space-8: 2rem;
+    --space-9: 2.5rem;
+    --header-height: 64px;
+  }
+  
   .container { padding: 0 var(--space-4); }
   .section { padding: var(--space-7) 0; }
   .grid--2, .grid--3, .grid--4 { grid-template-columns: 1fr; }
+
+  /* =======================================================
+     HERO SECTION
+     ======================================================= */
+  .hero { padding-top: calc(var(--header-height) + 1.5rem) !important; min-height: auto; }
+  .hero-grid { grid-template-columns: 1fr; gap: 1.5rem !important; }
+  .hero-photo-frame { width: 220px !important; height: 220px !important; margin: 1rem auto 0.5rem auto !important; }
+  .hero-profile-col .eyebrow-badge { margin-top: 2.2rem !important; margin-bottom: 0.5rem !important; font-size: 0.65rem !important; padding: 0.4rem 1rem !important; letter-spacing: 0.08em !important; }
+  .hero-title { font-size: 1.5rem !important; line-height: 1.2 !important; margin-bottom: 0.5rem !important; }
+  .hero-desc { font-size: 0.85rem !important; line-height: 1.5 !important; margin-bottom: 1.2rem !important; }
+  .hero-actions { margin-top: 0.5rem !important; gap: 0.75rem !important; }
+  .hero-actions .btn { padding: 0.6rem 1.2rem !important; font-size: 0.8rem !important; }
+  .hero-stat-chip--1 { top: -5px !important; left: -25px !important; transform: scale(0.8); }
+  .hero-stat-chip--2 { bottom: 5px !important; right: -25px !important; left: auto !important; transform: scale(0.8); }
+  .badge-chart { top: 5% !important; right: -25px !important; width: 40px !important; height: 40px !important; }
+  .badge-analytics { bottom: 5% !important; left: -25px !important; width: 40px !important; height: 40px !important; }
+  .badge-chart svg, .badge-analytics svg { width: 20px !important; height: 20px !important; }
+
+  /* =======================================================
+     KPI
+     ======================================================= */
+  .kpi-row { margin-top: 2rem !important; }
+  .kpi-card { padding: 1rem !important; }
+  .kpi-value { font-size: 1.2rem !important; }
+  .kpi-label { font-size: 0.75rem !important; }
+  .kpi-card::before { font-size: 0.55rem !important; top: 0.75rem !important; right: 0.75rem !important; }
+
+  /* =======================================================
+     KEAHLIAN (SKILLS)
+     ======================================================= */
+  .panel { padding: 1.25rem !important; }
+  .tag-group { margin-bottom: 1.5rem !important; }
+  .tag-group-title { margin-bottom: 0.75rem !important; font-size: 0.7rem !important; }
+  .tag-cloud { gap: 0.5rem !important; }
+  .tag-chip { font-size: 0.7rem !important; padding: 0.35rem 0.65rem !important; }
   
-  /* Hero Mobile Fix */
-  .hero { padding-top: calc(var(--header-height) + 2rem) !important; }
-  .hero-photo-frame { width: 220px !important; height: 220px !important; margin: 1.5rem auto 3rem auto !important; }
-  .hero-stat-chip { margin: 0 !important; }
-  .hero-stat-chip--1 { top: -5px !important; left: -10px !important; transform: scale(0.85) !important; }
-  .hero-stat-chip--2 { bottom: -15px !important; right: -10px !important; transform: scale(0.85) !important; }
+  /* =======================================================
+     PENGALAMAN & PENDIDIKAN (TIMELINE)
+     ======================================================= */
+  .panel-header { margin-bottom: 1.2rem !important; gap: 0.75rem !important; }
+  .panel-header h3 { font-size: 1.2rem !important; }
+  .panel-icon { width: 38px !important; height: 38px !important; }
+  .panel-icon svg { width: 18px !important; height: 18px !important; }
+  .timeline-item { grid-template-columns: 45px 1fr !important; gap: 1rem !important; }
+  .timeline-logo { width: 45px !important; height: 45px !important; }
+  .timeline-rail::before { top: 45px !important; }
   
-  /* Galeri & Layout Mobile Fix */
-  .doc-gallery-track { display: flex !important; flex-wrap: nowrap !important; width: max-content !important; }
-  .seminar-gallery-container figure { width: 200px !important; }
-  #certGrid, #bootcampGrid { justify-content: center !important; }
-  .cv-embed { height: 120vw; min-height: 500px; }
-  .footer-grid { grid-template-columns: 1fr; gap: 2rem; text-align: left; }
-  .footer-bottom { flex-direction: column; text-align: center; }
+  .timeline-body { padding-bottom: 1.5rem !important; }
+  .timeline-item:last-child .timeline-body { padding-bottom: 0 !important; }
+  
+  .entry-title { font-size: 1.1rem !important; margin-bottom: 0.2rem !important; }
+  .entry-org { font-size: 0.85rem !important; margin-bottom: 0.6rem !important; }
+  .meta-row { gap: 0.4rem !important; margin-bottom: 0.75rem !important; }
+  .meta-pill { font-size: 0.65rem !important; padding: 0.25rem 0.5rem !important; }
+  .meta-pill svg { width: 11px !important; height: 11px !important; }
+  .entry-thesis { font-size: 0.8rem !important; padding: 0.75rem 1rem !important; margin-bottom: 1rem !important; }
+  .timeline-body ul { padding-left: 1rem !important; margin-bottom: 1rem !important; }
+  .timeline-body li { font-size: 0.85rem !important; margin-bottom: 0.4rem !important; line-height: 1.5 !important; }
+
+  /* =======================================================
+     SERTIFIKASI & PROYEK
+     ======================================================= */
+  #certGrid, #bootcampGrid, #projectGrid { 
+    display: grid !important; 
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: 0.75rem !important; 
+  }
+  
+  #certGrid > *, #bootcampGrid > *, #projectGrid > * { 
+    width: 100% !important; 
+    max-width: 100% !important; 
+  }
+  
+  .cert-body { padding: 0.75rem !important; }
+  .cert-name { font-size: 0.75rem !important; margin-bottom: 0.25rem !important; line-height: 1.3 !important; }
+  .cert-issuer { font-size: 0.65rem !important; }
+  .cert-year { font-size: 0.6rem !important; }
+  .cert-meta { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+
+  .project-body { padding: 0.75rem !important; }
+  .project-date { font-size: 0.6rem !important; margin-bottom: 0.25rem !important; }
+  .project-title { font-size: 0.75rem !important; margin-bottom: 0.25rem !important; line-height: 1.3 !important; }
+  .project-desc { font-size: 0.65rem !important; line-height: 1.4 !important; }
+  .project-link { font-size: 0.65rem !important; margin-top: 0.5rem !important; }
+  .project-tool-tag { font-size: 0.55rem !important; padding: 0.2rem 0.5rem !important; top: 0.5rem !important; left: 0.5rem !important; }
+
+  /* =======================================================
+     MODALS, GALERI BERJALAN (MARQUEE) & SEMINAR
+     ======================================================= */
+  .doc-gallery-track { flex-wrap: nowrap !important; width: max-content !important; }
+  .doc-gallery figure { width: 160px !important; } 
+  .seminar-gallery-container figure { width: 180px !important; }
+  
+  .seminar-gallery-container .second-row { margin-top: 1.25rem !important; }
+  .seminar-gallery-container .btn-view-more {
+    margin-top: 1.5rem !important; 
+    margin-bottom: 0.5rem !important;
+    font-size: 0.65rem !important;
+    padding: 0.4rem 0.8rem !important;
+  }
+  
+  .timeline-body .doc-caption { font-size: 0.65rem !important; margin-bottom: 1.2rem !important; }
+  .timeline-body .btn-view-more { font-size: 0.6rem !important; padding: 0.35rem 0.8rem !important; }
+
+  .lightbox-btn { width: 40px; height: 40px; font-size: 16px; }
+  .lightbox-prev { left: 10px; }
+  .lightbox-next { right: 10px; }
+  .grid-dialog { padding: 1.5rem !important; }
+  .grid-dialog-header { font-size: var(--fs-lg); }
+  .grid-modal-body { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  
+  /* =======================================================
+     CV PREVIEW & TOMBOL UNDUH
+     ======================================================= */
+  .cv-frame-wrap { 
+    margin: 0 auto !important; 
+    border-radius: 12px !important; 
+    border: 1px solid var(--color-border) !important; 
+    padding: 0.5rem !important; 
+    background: var(--color-white) !important;
+    box-shadow: var(--shadow-sm) !important;
+  }
+  
+  .cv-embed { 
+    width: 100% !important;
+    height: auto !important; 
+    border: 1px solid #e2e8f0 !important; 
+    border-radius: 6px !important;
+    display: block !important;
+  }
+
+  .cv-actions {
+    margin-top: 1.25rem !important;
+    text-align: center !important;
+  }
+
+  .cv-actions .btn {
+    font-size: 0.75rem !important; 
+    padding: 0.5rem 1rem !important; 
+    display: inline-flex !important; 
+    width: auto !important; 
+  }
+
+  .cv-actions .btn svg {
+    width: 14px !important; 
+    height: 14px !important;
+  }
+
+  /* =======================================================
+     KOTAK HUBUNGI SAYA (SQUARE, COMPACT & CENTERED MOBILE)
+     ======================================================= */
+  .cta-panel {
+    padding: 1rem !important; 
+    margin: 1rem auto !important;
+    border-radius: 12px !important;
+    width: 100% !important;
+    max-width: 280px !important; 
+    aspect-ratio: 1 / 1 !important; 
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .cta-panel h2 {
+    font-size: 1.05rem !important; 
+    margin-bottom: 0.25rem !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .cta-panel p {
+    font-size: 0.68rem !important; 
+    line-height: 1.3 !important;
+    margin-bottom: 0.6rem !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .cta-actions {
+    gap: 0.35rem !important;
+    display: flex !important;
+    flex-direction: column !important; 
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  .cta-actions .btn {
+    width: 100% !important;
+    max-width: 160px !important; 
+    padding: 0.3rem 0.6rem !important;
+    font-size: 0.65rem !important;
+    text-align: center !important;
+    justify-content: center !important;
+    display: flex !important;
+    margin: 0 auto !important;
+  }
+
+  /* =======================================================
+     FOOTER (MARjin & JARAK JUDUL RAPI)
+     ======================================================= */
+  .site-footer {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+
+  .footer-grid { 
+    grid-template-columns: 1fr !important; 
+    gap: 1.25rem !important; 
+    text-align: left !important; 
+    margin-top: 0.5rem !important; 
+  }
+  
+  .footer-brand { 
+    grid-column: span 1 !important; 
+  }
+
+  /* Menyamakan margin atas (jarak) untuk setiap judul baru (Tautan Cepat & Hubungi Saya) */
+  .footer-title {
+    margin-top: 1.5rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  /* Membuat Tautan Cepat (Quick Links) menjadi 2 kolom rapi */
+  .footer-links-wrapper {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem 1rem !important;
+  }
+
+  .footer-bottom { 
+    flex-direction: column !important; 
+    text-align: center !important; 
+    gap: 0.5rem !important; 
+    margin-top: 1.25rem !important;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
 }
 
 @media (max-width: 480px) {
-  .kpi-row { grid-template-columns: 1fr; }
-  .doc-gallery { grid-template-columns: repeat(2, 1fr); }
-  .cta-panel { padding: var(--space-5); }
+  .kpi-row { grid-template-columns: repeat(2, 1fr) !important; gap: 0.75rem !important; }
+  .cta-panel { 
+    max-width: 260px !important; 
+    aspect-ratio: 1 / 1 !important; 
+    padding: 0.85rem !important; 
+  }
 }

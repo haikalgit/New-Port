@@ -1,8 +1,6 @@
 /**
  * main.js
- * Titik masuk aplikasi. Menghubungkan data (PortfolioData) dengan
- * tampilan (ComponentRenderer) dan perilaku interaktif (NavigationController,
- * ScrollReveal, ImageFallback).
+ * Titik masuk aplikasi. Menghubungkan data dengan UI dan logika interaksi.
  */
 class PortfolioApp {
   constructor(data) {
@@ -19,243 +17,263 @@ class PortfolioApp {
       linkSelector: ".nav-link",
       sectionSelector: "main section[id], main .panel[id]",
     });
-
     this.reveal = new ScrollReveal();
 
     this.#setCurrentYearFallback();
+    this.#setupMarqueeGallery();
+    this.#setupLightbox();
+    this.#setupGridModal();
   }
 
   #setCurrentYearFallback() {
     const el = document.getElementById("footerYear");
     if (el && !el.textContent) el.textContent = new Date().getFullYear();
   }
-}
 
-// =========================================================
-// INISIALISASI & PENGGABUNGAN SEMUA LOGIKA
-// =========================================================
-document.addEventListener("DOMContentLoaded", () => {
-  // 1. Inisialisasi Aplikasi Utama
-  const app = new PortfolioApp(PortfolioData);
-  app.init();
+  #setupMarqueeGallery() {
+    const marqueeTracks = document.querySelectorAll('.doc-gallery-track');
+    if (marqueeTracks.length === 0) return;
 
-  // 2. Setup Marquee Animation (Galeri Berjalan)
-  setupMarqueeGallery();
-
-  // 3. Setup Lightbox (Preview Gambar Fullscreen)
-  setupLightbox();
-
-  setupGridModal();
-});
-
-// =========================================================
-// FUNGSI: ANIMASI MARQUEE (GALERI BERJALAN)
-// =========================================================
-function setupMarqueeGallery() {
-  const marqueeTracks = document.querySelectorAll('.doc-gallery-track');
-  if (marqueeTracks.length === 0) return;
-
-  // Menentukan durasi animasi berdasarkan jumlah foto
-  marqueeTracks.forEach(track => {
-    const totalPhotos = track.querySelectorAll('figure').length;
-    track.style.animationDuration = `${totalPhotos * 3}s`; // 3 detik per foto
-  });
-
-  // Me-reset animasi saat elemen masuk ke layar (viewport)
-  const marqueeObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.animationName = 'none'; 
-        void entry.target.offsetWidth; // Memicu reflow
-        entry.target.style.animationName = 'scrollMarquee'; 
-      }
+    marqueeTracks.forEach(track => {
+      const totalPhotos = track.querySelectorAll('figure').length;
+      track.style.animationDuration = `${totalPhotos * 3}s`;
     });
-  }, { threshold: 0.1, rootMargin: "0px 0px -10% 0px" });
 
-  marqueeTracks.forEach(track => marqueeObserver.observe(track));
-}
+    const marqueeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animationName = 'none'; 
+          void entry.target.offsetWidth; 
+          entry.target.style.animationName = 'scrollMarquee'; 
+        }
+      });
+    }, { threshold: 0.1, rootMargin: "0px 0px -10% 0px" });
 
-// =========================================================
-// FUNGSI: LIGHTBOX (PREVIEW GAMBAR KETIKA DIKLIK)
-// =========================================================
-function setupLightbox() {
-  const lightbox = document.getElementById('imageLightbox');
-  const lightboxImg = document.getElementById('lightboxImg');
-  const lightboxDialog = document.querySelector('.lightbox-dialog'); 
-  const closeBtn = document.querySelector('.lightbox-close');
-  const prevBtn = document.querySelector('.lightbox-prev');
-  const nextBtn = document.querySelector('.lightbox-next');
+    marqueeTracks.forEach(track => marqueeObserver.observe(track));
+  }
 
-  if (!lightbox) return;
+  #setupLightbox() {
+    const lightbox = document.getElementById('imageLightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxDialog = document.querySelector('.lightbox-dialog'); 
+    const closeBtn = document.querySelector('.lightbox-close');
+    const prevBtn = document.querySelector('.lightbox-prev');
+    const nextBtn = document.querySelector('.lightbox-next');
 
-  let currentGallery = [];
-  let currentIndex = 0;
+    if (!lightbox) return;
 
-  // Membuka Lightbox dan mendeteksi asal galeri (Pengalaman/Sertifikat)
-  document.body.addEventListener('click', (e) => {
-    const clickedImg = e.target.closest('.doc-thumb img, .cert-image img');
-    
-    if (clickedImg) {
+    let currentGallery = [];
+    let currentIndex = 0;
+
+    document.body.addEventListener('click', (e) => {
+      const clickedImg = e.target.closest('.doc-thumb img, .cert-image img, .project-media img');
+      if (!clickedImg) return;
+
       let container = null;
 
-      if (clickedImg.closest('.doc-thumb')) {
-        // Mode Galeri: Ambil HANYA foto dari deretan asli (bukan duplikat animasi)
+      if (clickedImg.closest('#gridModalBody')) {
+        container = document.getElementById('gridModalBody');
+        currentGallery = Array.from(container.querySelectorAll('img'));
+      } 
+      else if (clickedImg.closest('.doc-thumb')) {
         container = clickedImg.closest('.gallery-wrapper');
-        currentGallery = Array.from(container.querySelectorAll('.track-original .doc-thumb img'));
-      } else if (clickedImg.closest('.cert-image')) {
-        // Mode Sertifikat Grid biasa
+        if (container) {
+          currentGallery = Array.from(container.querySelectorAll('.track-original .doc-thumb img'));
+        }
+      } 
+      else if (clickedImg.closest('.cert-image')) {
         container = clickedImg.closest('.grid'); 
-        currentGallery = Array.from(container.querySelectorAll('.cert-image img'));
+        if (container) {
+          currentGallery = Array.from(container.querySelectorAll('.cert-image img'));
+        }
+      }
+      else if (clickedImg.closest('.project-media')) {
+        container = clickedImg.closest('#projectGrid'); 
+        if (container) {
+          currentGallery = Array.from(container.querySelectorAll('.project-media img'));
+        }
       }
 
       if (container && currentGallery.length > 0) {
         currentIndex = currentGallery.indexOf(clickedImg);
         
-        // Proteksi: Jika yang terklik adalah gambar duplikat, cari index berdasarkan src-nya
         if (currentIndex === -1) {
           currentIndex = currentGallery.findIndex(img => img.src === clickedImg.src);
           if (currentIndex === -1) currentIndex = 0;
         }
-
+        
         updateLightboxImage('none'); 
         lightbox.classList.add('is-open');
       }
-    }
-  });
-
-  // Fungsi Transisi Gambar (Slide)
-  const updateLightboxImage = (direction) => {
-    if (currentGallery.length > 0) {
-      lightboxDialog.classList.remove('slide-next', 'slide-prev');
-      void lightboxDialog.offsetWidth; // Memicu reflow animasi CSS
-      lightboxImg.src = currentGallery[currentIndex].src;
-      
-      if (direction === 'next') lightboxDialog.classList.add('slide-next');
-      if (direction === 'prev') lightboxDialog.classList.add('slide-prev');
-    }
-  };
-
-  // Fungsi Menutup Lightbox
-  const closeLightbox = () => {
-    lightbox.classList.remove('is-open');
-    setTimeout(() => { 
-      lightboxImg.src = ''; 
-      lightboxDialog.classList.remove('slide-next', 'slide-prev'); 
-    }, 300); // Sinkron dengan durasi transisi CSS
-  };
-
-  // Event Listeners untuk Tombol Kontrol Lightbox
-  if (nextBtn) {
-    nextBtn.addEventListener('click', (e) => { 
-      e.stopPropagation(); 
-      currentIndex = (currentIndex + 1) % currentGallery.length; 
-      updateLightboxImage('next'); 
     });
-  }
-  
-  if (prevBtn) {
-    prevBtn.addEventListener('click', (e) => { 
-      e.stopPropagation(); 
-      currentIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length; 
-      updateLightboxImage('prev'); 
-    });
-  }
-  
-  if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
-  
-  lightbox.addEventListener('click', (e) => { 
-    if (e.target === lightbox) closeLightbox(); 
-  });
 
-  // Navigasi Keyboard untuk Lightbox
-  document.addEventListener('keydown', (e) => {
-    if (lightbox.classList.contains('is-open')) {
-      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { 
-        e.preventDefault(); 
-        nextBtn.click(); 
+    const updateLightboxImage = (direction) => {
+      if (currentGallery.length > 0) {
+        lightboxDialog.classList.remove('slide-next', 'slide-prev');
+        void lightboxDialog.offsetWidth; 
+        lightboxImg.src = currentGallery[currentIndex].src;
+        
+        if (direction === 'next') lightboxDialog.classList.add('slide-next');
+        if (direction === 'prev') lightboxDialog.classList.add('slide-prev');
       }
-      else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { 
-        e.preventDefault(); 
-        prevBtn.click(); 
-      }
-      else if (e.key === 'Escape') {
-        closeLightbox();
-      }
+    };
+
+    const closeLightbox = () => {
+      lightbox.classList.remove('is-open');
+      setTimeout(() => { 
+        lightboxImg.src = ''; 
+        lightboxDialog.classList.remove('slide-next', 'slide-prev'); 
+      }, 300); 
+    };
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        currentIndex = (currentIndex + 1) % currentGallery.length; 
+        updateLightboxImage('next'); 
+      });
     }
-  });
-}
-
-// =========================================================
-// FUNGSI: MODAL ALBUM (GRID FOTO) - BERDASARKAN DATA ASLI
-// =========================================================
-function setupGridModal() {
-  const gridModal = document.getElementById('gridModal');
-  const gridModalBody = document.getElementById('gridModalBody');
-  const gridCloseBtn = document.getElementById('gridCloseBtn');
-
-  if (!gridModal) return;
-
-  window.toggleGallery = function(btn) {
-    const wrapper = btn.closest('.gallery-wrapper');
-    const section = wrapper.closest('section');
     
-    let itemsToDisplay = [];
-
-    // Menentukan sumber data asli berdasarkan letak tombol (section mana yang diklik)
-    if (section.id === 'sertifikasi') {
-      // Jika diklik di bagian Sertifikasi & Seminar, gabungkan data row1 dan row2 asli
-      itemsToDisplay = [...(PortfolioData.seminarsRow1 || []), ...(PortfolioData.seminarsRow2 || [])];
-    } else {
-      // Untuk bagian Pengalaman / Pendidikan, cari data berdasarkan index elemen atau atributnya
-      // Atau ambil dari elemen track-original yang unik (tanpa duplikat clone)
-      const uniqueImages = wrapper.querySelectorAll('.track-original .doc-thumb img');
-      itemsToDisplay = Array.from(uniqueImages).map(img => ({
-        image: img.src,
-        name: img.alt || 'Dokumentasi'
-      }));
+    if (prevBtn) {
+      prevBtn.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        currentIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length; 
+        updateLightboxImage('prev'); 
+      });
     }
+    
+    if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => { 
+      if (e.target === lightbox) closeLightbox(); 
+    });
 
-    if (itemsToDisplay.length > 0) {
-      gridModalBody.innerHTML = ''; // Bersihkan isi sebelumnya
+    document.addEventListener('keydown', (e) => {
+      if (lightbox.classList.contains('is-open')) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); nextBtn.click(); }
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); prevBtn.click(); }
+        else if (e.key === 'Escape') { closeLightbox(); }
+      }
+    });
+  }
 
-      // Render foto secara dinamis sesuai jumlah data yang benar-benar ada
-      itemsToDisplay.forEach(item => {
-        const figure = document.createElement('figure');
-        const thumb = document.createElement('div');
-        thumb.className = 'doc-thumb';
+  #setupGridModal() {
+    const gridModal = document.getElementById('gridModal');
+    const gridModalBody = document.getElementById('gridModalBody');
+    const gridCloseBtn = document.getElementById('gridCloseBtn');
+
+    if (!gridModal) return;
+
+    window.toggleGallery = (btn) => {
+      const wrapper = btn.closest('.gallery-wrapper');
+      const section = wrapper.closest('section');
+      let itemsToDisplay = [];
+
+      if (section.id === 'sertifikasi') {
+        itemsToDisplay = [...(this.data.seminarsRow1 || []), ...(this.data.seminarsRow2 || [])];
+      } else {
+        const uniqueImages = wrapper.querySelectorAll('.track-original .doc-thumb img');
+        itemsToDisplay = Array.from(uniqueImages).map(img => ({
+          image: img.src,
+          name: img.alt || 'Dokumentasi'
+        }));
+      }
+
+      if (itemsToDisplay.length > 0) {
+        gridModalBody.innerHTML = '';
         
-        const img = document.createElement('img');
-        // Mendukung struktur data objek seminar ({ image, name }) maupun elemen HTML img biasa
-        img.src = item.image || item.src;
-        img.alt = item.name || item.alt || 'Dokumentasi';
-        
-        img.style.cursor = 'zoom-in';
-        img.addEventListener('click', () => {
-          // Cari elemen gambar yang cocok di halaman untuk memicu fungsi Zoom/Lightbox utama
-          const targetImg = Array.from(document.querySelectorAll('.doc-thumb img')).find(el => el.src === img.src);
-          if (targetImg) {
-            targetImg.click();
-          }
+        itemsToDisplay.forEach(item => {
+          const figure = document.createElement('figure');
+          const thumb = document.createElement('div');
+          thumb.className = 'doc-thumb';
+          
+          const img = document.createElement('img');
+          img.src = item.image || item.src;
+          img.alt = item.name || item.alt || 'Dokumentasi';
+          img.style.cursor = 'zoom-in';
+
+          thumb.appendChild(img);
+          figure.appendChild(thumb);
+          gridModalBody.appendChild(figure);
         });
 
-        thumb.appendChild(img);
-        figure.appendChild(thumb);
-        gridModalBody.appendChild(figure);
-      });
+        gridModal.classList.add('is-open');
+      }
+    };
 
-      // Buka Modal Album
-      gridModal.classList.add('is-open');
-    }
-  };
-
-  // Menutup kotak Album
-  gridCloseBtn.addEventListener('click', () => {
-    gridModal.classList.remove('is-open');
-  });
-
-  gridModal.addEventListener('click', (e) => {
-    if (e.target === gridModal) {
-      gridModal.classList.remove('is-open');
-    }
-  });
+    gridCloseBtn.addEventListener('click', () => { gridModal.classList.remove('is-open'); });
+    
+    gridModal.addEventListener('click', (e) => { 
+      if (e.target === gridModal) gridModal.classList.remove('is-open'); 
+    });
+  }
 }
+
+// =========================================================
+// LOGIKA UTAMA GANTI BAHASA (DENGAN SVG & LOCALSTORAGE)
+// =========================================================
+let currentLang = localStorage.getItem('selected_lang') || 'id';
+window.currentLang = currentLang;
+let globalApp = null;
+
+function applyLanguage(lang) {
+  currentLang = lang;
+  window.currentLang = lang;
+  localStorage.setItem('selected_lang', lang);
+
+  // 1. Menerjemahkan elemen statis di HTML
+  const translatableElements = document.querySelectorAll('[data-id][data-en]');
+  translatableElements.forEach(el => {
+    el.textContent = el.getAttribute(`data-${lang}`);
+  });
+
+  // 2. Merender ulang seluruh komponen dinamis
+  if (globalApp && globalApp.renderer) {
+    globalApp.renderer.renderAll();
+  }
+
+  // 3. Memperbarui ikon bendera SVG & teks tombol navbar
+  const langFlag = document.getElementById('langFlag');
+  const langText = document.getElementById('langText');
+  
+  if (langFlag && langText) {
+    if (lang === 'en') {
+      langText.textContent = 'EN';
+      langFlag.innerHTML = `
+        <svg width="18" height="13" viewBox="0 0 60 30" style="border-radius: 2px; box-shadow: 0 0 1px rgba(0,0,0,0.4); display: block;">
+          <clipPath id="s"><path d="M0,0 v30 h60 v-30 z"/></clipPath>
+          <clipPath id="t"><path d="M30,15 h30 v15 z M30,15 h-30 v-15 z M30,15 h-30 v15 z M30,15 h30 v-15 z"/></clipPath>
+          <g clip-path="url(#s)">
+            <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+            <path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" stroke-width="4" clip-path="url(#t)"/>
+            <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+            <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+          </g>
+        </svg>
+      `;
+    } else {
+      langText.textContent = 'ID';
+      langFlag.innerHTML = `
+        <svg width="18" height="13" viewBox="0 0 18 13" fill="none" style="border-radius: 2px; box-shadow: 0 0 1px rgba(0,0,0,0.4); display: block;">
+          <rect width="18" height="6.5" fill="#E70011"/>
+          <rect y="6.5" width="18" height="6.5" fill="#FFFFFF"/>
+        </svg>
+      `;
+    }
+  }
+}
+
+function toggleLanguage() {
+  const nextLang = currentLang === 'id' ? 'en' : 'id';
+  applyLanguage(nextLang);
+}
+
+// =========================================================
+// INISIALISASI APLIKASI
+// =========================================================
+document.addEventListener("DOMContentLoaded", () => {
+  globalApp = new PortfolioApp(PortfolioData);
+  globalApp.init();
+  
+  // Terapkan bahasa yang tersimpan saat halaman dimuat
+  applyLanguage(currentLang);
+});
