@@ -20,7 +20,7 @@ class PortfolioApp {
     this.reveal = new ScrollReveal();
 
     this.#setCurrentYearFallback();
-    this.#setupMarqueeGallery();
+    this.setupMarqueeGallery();
     this.#setupLightbox();
     this.#setupGridModal();
   }
@@ -30,21 +30,46 @@ class PortfolioApp {
     if (el && !el.textContent) el.textContent = new Date().getFullYear();
   }
 
-  #setupMarqueeGallery() {
+  setupMarqueeGallery() {
     const marqueeTracks = document.querySelectorAll('.doc-gallery-track');
     if (marqueeTracks.length === 0) return;
 
-    marqueeTracks.forEach(track => {
-      const totalPhotos = track.querySelectorAll('figure').length;
-      track.style.animationDuration = `${totalPhotos * 3}s`;
-    });
+    // SATU angka ini menentukan kecepatan geser SEMUA galeri (piksel/detik).
+    const PIXELS_PER_SECOND = 50;
+
+    // DEBUG: buka DevTools (F12) > Console, lalu reload halaman.
+    // Kalau baris ini TIDAK muncul, atau angkanya bukan yang barusan
+    // kamu ubah -> file main.js yang jalan di browser masih versi LAMA
+    // (di-cache browser), bukan masalah kode.
+    console.log('[Marquee] PIXELS_PER_SECOND aktif:', PIXELS_PER_SECOND);
+
+    const updateMarqueeSpeed = () => {
+      marqueeTracks.forEach(track => {
+        const totalWidth = track.scrollWidth;
+        if (totalWidth <= 0) return;
+
+        const travelDistance = totalWidth / 2;
+        const duration = travelDistance / PIXELS_PER_SECOND;
+        track.style.animationDuration = `${duration}s`;
+      });
+
+      // DEBUG tambahan: cek durasi yang benar-benar diterapkan ke DOM.
+      console.log('[Marquee] Durasi diterapkan:',
+        Array.from(marqueeTracks).map(t => t.style.animationDuration)
+      );
+    };
+
+    updateMarqueeSpeed();
+
+    window.addEventListener('resize', updateMarqueeSpeed);
+    setTimeout(updateMarqueeSpeed, 300);
 
     const marqueeObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          entry.target.style.animationName = 'none'; 
-          void entry.target.offsetWidth; 
-          entry.target.style.animationName = 'scrollMarquee'; 
+          entry.target.style.animationName = 'none';
+          void entry.target.offsetWidth;
+          entry.target.style.animationName = 'scrollMarquee';
         }
       });
     }, { threshold: 0.1, rootMargin: "0px 0px -10% 0px" });
@@ -229,6 +254,12 @@ function applyLanguage(lang) {
   // 2. Merender ulang seluruh komponen dinamis
   if (globalApp && globalApp.renderer) {
     globalApp.renderer.renderAll();
+
+    // KUNCI PERBAIKAN: renderAll() di atas menghancurkan & membangun ulang
+    // elemen .doc-gallery-track, jadi kecepatan marquee harus dihitung
+    // ULANG untuk elemen yang baru — kalau tidak, elemen baru akan pakai
+    // durasi default dari CSS (25s) dan mengabaikan PIXELS_PER_SECOND di JS.
+    globalApp.setupMarqueeGallery();
   }
 
   // 3. Memperbarui ikon bendera SVG & teks tombol navbar

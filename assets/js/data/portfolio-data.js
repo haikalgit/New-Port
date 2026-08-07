@@ -90,7 +90,7 @@ const PortfolioData = {
         id: "Jakarta Pusat, Indonesia",
         en: "Central Jakarta, Indonesia"
       },
-      logo: "assets/images/experience/logo-sti.jpg",
+      logo: "assets/images/experience/sti/logo-sti.jpg",
       points: {
         id: [
           "Berkolaborasi dengan tim pengembang menggunakan aplikasi internal PROMAN untuk manajemen backlog, pelacakan tugas, dan koordinasi pengembangan.",
@@ -106,10 +106,10 @@ const PortfolioData = {
         ]
       },
       gallery: [
-        { src: "assets/images/experience/foto-gedung-gbi.jpg", caption: "Dokumentasi kerja 1" },
-        { src: "assets/images/experience/foto-kerja-sti.jpg", caption: "Dokumentasi kerja 2" },
-        { src: "assets/images/experience/foto-gambar-sti.jpg", caption: "Dokumentasi kerja 3" },
-        { src: "assets/images/experience/gbi-malam.jpeg", caption: "Dokumentasi kerja 4" },
+        { src: "assets/images/experience/sti/foto-gedung-gbi.jpg", caption: "Dokumentasi kerja 1" },
+        { src: "assets/images/experience/sti/foto-kerja-sti.jpg", caption: "Dokumentasi kerja 2" },
+        { src: "assets/images/experience/sti/foto-gambar-sti.jpg", caption: "Dokumentasi kerja 3" },
+        { src: "assets/images/experience/sti/gbi-malam.jpeg", caption: "Dokumentasi kerja 4" },
       ],
     },
     {
@@ -120,7 +120,7 @@ const PortfolioData = {
         id: "Jakarta Pusat, Indonesia",
         en: "Central Jakarta, Indonesia"
       },
-      logo: "assets/images/experience/dcktrp.png",
+      logo: "assets/images/experience/dcktrp/dcktrp.png",
       points: {
         id: [
           "Berkolaborasi dengan tim pengembang menggunakan aplikasi internal PROMAN untuk manajemen backlog, pelacakan tugas, dan koordinasi pengembangan.",
@@ -136,11 +136,51 @@ const PortfolioData = {
         ]
       },
       gallery: [
-        { src: "assets/images/experience/foto-serti-mentor.jpg", caption: "Dokumentasi kerja 1" },
-        { src: "assets/images/experience/serti-intern.jpg", caption: "Dokumentasi kerja 2" },
-        { src: "assets/images/experience/foto-mentor-intern.jpeg", caption: "Dokumentasi kerja 3" },
-        { src: "assets/images/experience/foto-kerja-intern.jpg", caption: "Dokumentasi kerja 4" },
-        { src: "assets/images/experience/lobby-jakarta-satu.jpeg", caption: "Dokumentasi kerja 5" },
+        { src: "assets/images/experience/dcktrp/foto-serti-mentor.jpg", caption: "Dokumentasi kerja 1" },
+        { src: "assets/images/experience/dcktrp/serti-intern.jpg", caption: "Dokumentasi kerja 2" },
+        { src: "assets/images/experience/dcktrp/foto-mentor-intern.jpeg", caption: "Dokumentasi kerja 3" },
+        { src: "assets/images/experience/dcktrp/foto-kerja-intern.jpg", caption: "Dokumentasi kerja 4" },
+        { src: "assets/images/experience/dcktrp/lobby-jakarta-satu.jpeg", caption: "Dokumentasi kerja 5" },
+      ],
+    },
+    {
+      title: { id: "Pemilik Bisnis", en: "Business Owner" },
+      org: "Select Fragz",
+      period: { id: "Januari 2025 – Mei 2026", en: "January 2025 – May 2026" },
+      location: {
+        id: "Depok, Indonesia",
+        en: "Depok, Indonesia"
+      },
+      logo: "assets/images/experience/select-fragz/sf-new-logo-tr.png",
+      points: {
+        id: [
+          "Berkolaborasi dengan tim pengembang menggunakan aplikasi internal PROMAN untuk manajemen backlog, pelacakan tugas, dan koordinasi pengembangan.",
+          "Mengembangkan dan menyempurnakan fitur untuk sistem manajemen aset dan ruang rapat menggunakan framework Laravel.",
+          "Meningkatkan aksesibilitas data dengan mengimplementasikan fitur pencarian untuk mengoptimalkan penarikan informasi.",
+          "Mengelola pembaruan fitur dan integrasi kode menggunakan GitLab untuk version control dan kolaborasi tim.",
+        ],
+        en: [
+          "Collaborated with the development team using the internal PROMAN application for backlog management, task tracking, and development coordination.",
+          "Developed and refined features for asset and meeting room management systems using the Laravel framework.",
+          "Improved data accessibility by implementing search features to optimize information retrieval.",
+          "Managed feature updates and code integration using GitLab for version control and team collaboration.",
+        ]
+      },
+      gallery: [
+        { src: "assets/images/experience/select-fragz/paket-jnt.jpeg", caption: "Dokumentasi kerja 1" },
+        { src: "assets/images/experience/select-fragz/paket-hitam.jpeg", caption: "Dokumentasi kerja 2" },
+        { src: "assets/images/experience/select-fragz/selfie-paket.jpeg", caption: "Dokumentasi kerja 3" },
+        { src: "assets/images/experience/select-fragz/akun-tiktok.jpeg", caption: "Dokumentasi kerja 4" },
+        { src: "assets/images/experience/select-fragz/menara-paket.jpeg", caption: "Dokumentasi kerja 5" },
+        { src: "assets/images/experience/select-fragz/botol-kosong.jpeg", caption: "Dokumentasi kerja 6" },
+        { src: "assets/images/experience/select-fragz/cut-paper-test.jpeg", caption: "Dokumentasi kerja 7" },
+        { src: "assets/images/experience/select-fragz/lingkaran-paper-test.jpeg", caption: "Dokumentasi kerja 8" },
+        { src: "assets/images/experience/select-fragz/live.jpeg", caption: "Dokumentasi kerja 9" },
+        { src: "assets/images/experience/select-fragz/packing.jpeg", caption: "Dokumentasi kerja 10" },
+        { src: "assets/images/experience/select-fragz/paket-laptop.jpeg", caption: "Dokumentasi kerja 11" },
+        { src: "assets/images/experience/select-fragz/riwayat-transaksi.png", caption: "Dokumentasi kerja 12" },
+        { src: "assets/images/experience/select-fragz/paket-putih.jpeg", caption: "Dokumentasi kerja 13" },
+        { src: "assets/images/experience/select-fragz/vial-bottle.jpeg", caption: "Dokumentasi kerja 14" },
       ],
     },
   ],

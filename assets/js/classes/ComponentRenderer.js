@@ -50,6 +50,40 @@ class ComponentRenderer {
     </svg>`;
   }
 
+  /**
+   * ============================================================
+   * NORMALISASI JUMLAH ITEM MARQUEE (kunci penyamaan kecepatan)
+   * ============================================================
+   * Semua galeri marquee (Pengalaman, Pendidikan, Seminar) dipadatkan
+   * ke jumlah item yang SAMA PERSIS (= jumlah terbanyak di antara semua
+   * galeri yang ada). Dengan jumlah figure yang identik di setiap galeri,
+   * lebar total track (figure x count + gap x count) otomatis identik,
+   * sehingga kecepatan visual otomatis sama tanpa perlu kalkulasi lebar
+   * yang rumit dan rawan meleset.
+   *
+   * Foto yang jumlahnya kurang akan diulang (cycle) sampai mencapai
+   * jumlah target — ini aman untuk marquee karena kontennya memang
+   * akan terlihat berulang saat loop.
+   */
+  #padItems(items, targetCount) {
+    if (!items || items.length === 0) return [];
+    if (items.length >= targetCount) return items;
+    const padded = [];
+    for (let i = 0; i < targetCount; i++) {
+      padded.push(items[i % items.length]);
+    }
+    return padded;
+  }
+
+  #getGlobalMarqueeMax() {
+    const lengths = [];
+    (this.data.experience || []).forEach(exp => lengths.push((exp.gallery || []).length));
+    (this.data.education || []).forEach(edu => lengths.push((edu.gallery || []).length));
+    lengths.push((this.data.seminarsRow1 || []).length);
+    lengths.push((this.data.seminarsRow2 || []).length);
+    return Math.max(1, ...lengths);
+  }
+
   #renderNav() {
     const { site } = this.data;
     const brand = this.#mount("brandSlot");
@@ -166,6 +200,8 @@ class ComponentRenderer {
     const panelTitle = document.querySelector('#pengalaman .panel-header h3');
     if (panelTitle) panelTitle.textContent = lang === 'en' ? 'Work Experience' : 'Pengalaman Kerja';
 
+    const marqueeMax = this.#getGlobalMarqueeMax();
+
     el.innerHTML = this.data.experience
       .map((exp) => {
         const titleText = typeof exp.title === 'object' ? exp.title[lang] : exp.title;
@@ -175,7 +211,17 @@ class ComponentRenderer {
         const viewMoreText = lang === 'en' ? 'More Documentation ▾' : 'Dokumentasi Selengkapnya ▾';
         const captionText = lang === 'en' ? 'Developer team activity & meeting documentation' : 'Dokumentasi kegiatan & rapat tim developer';
 
+        // track-original: foto ASLI apa adanya (dipakai lightbox & grid modal, jangan diubah)
         const galleryItems = exp.gallery
+          .map((g) => `<figure><div class="doc-thumb">${this.#img(g.src, g.caption)}</div></figure>`)
+          .join("");
+
+        // track-duplicate: dipadatkan ke jumlah target GLOBAL yang sama untuk semua galeri,
+        // lalu digandakan SIMETRIS 1x (bukan rasio ganjil) — supaya lebar total track
+        // (original + duplicate) SAMA di semua galeri, dan trik loop translateX(-50%)
+        // tetap presisi seperti desain aslinya.
+        const paddedItems = this.#padItems(exp.gallery, marqueeMax);
+        const duplicatedItems = paddedItems
           .map((g) => `<figure><div class="doc-thumb">${this.#img(g.src, g.caption)}</div></figure>`)
           .join("");
 
@@ -196,7 +242,7 @@ class ComponentRenderer {
               <div class="doc-gallery">
                 <div class="doc-gallery-track">
                   <div class="track-original">${galleryItems}</div>
-                  <div class="track-duplicate">${galleryItems}</div>
+                  <div class="track-duplicate">${duplicatedItems}</div>
                 </div>
               </div>
               <button class="btn-view-more" onclick="window.toggleGallery(this)">${viewMoreText}</button>
@@ -217,6 +263,8 @@ class ComponentRenderer {
     const panelTitle = document.querySelector('#pendidikan .panel-header h3');
     if (panelTitle) panelTitle.textContent = lang === 'en' ? 'Education' : 'Pendidikan';
 
+    const marqueeMax = this.#getGlobalMarqueeMax();
+
     el.innerHTML = this.data.education
       .map((edu) => {
         const degreeText = typeof edu.degree === 'object' ? edu.degree[lang] : edu.degree;
@@ -229,6 +277,11 @@ class ComponentRenderer {
         const captionText = lang === 'en' ? 'Lectures & presentation moments' : 'Momen semasa perkuliahan & presentasi';
 
         const galleryItems = edu.gallery
+          .map((g) => `<figure><div class="doc-thumb">${this.#img(g.src, g.caption)}</div></figure>`)
+          .join("");
+
+        const paddedItems = this.#padItems(edu.gallery, marqueeMax);
+        const duplicatedItems = paddedItems
           .map((g) => `<figure><div class="doc-thumb">${this.#img(g.src, g.caption)}</div></figure>`)
           .join("");
 
@@ -251,7 +304,7 @@ class ComponentRenderer {
               <div class="doc-gallery">
                 <div class="doc-gallery-track">
                   <div class="track-original">${galleryItems}</div>
-                  <div class="track-duplicate">${galleryItems}</div>
+                  <div class="track-duplicate">${duplicatedItems}</div>
                 </div>
               </div>
               <button class="btn-view-more" onclick="window.toggleGallery(this)">${viewMoreText}</button>
@@ -283,6 +336,7 @@ class ComponentRenderer {
       
       const row1Data = this.data.seminarsRow1 || [];
       const row2Data = this.data.seminarsRow2 || [];
+      const marqueeMax = this.#getGlobalMarqueeMax();
 
       const createFigures = (arr) => arr.map(s => 
         `<figure><div class="doc-thumb">${this.#img(s.image, s.name)}</div></figure>`
@@ -290,21 +344,26 @@ class ComponentRenderer {
 
       const originalRow1 = createFigures(row1Data);
       const originalRow2 = createFigures(row2Data);
-      const cloneRow1 = originalRow1.repeat(3);
-      const cloneRow2 = originalRow2.repeat(3);
+
+      // Sama seperti Pengalaman/Pendidikan: padatkan ke jumlah target GLOBAL,
+      // lalu duplikasi simetris 1x — bukan repeat(3) seperti sebelumnya.
+      const paddedRow1 = this.#padItems(row1Data, marqueeMax);
+      const paddedRow2 = this.#padItems(row2Data, marqueeMax);
+      const duplicateRow1 = createFigures(paddedRow1);
+      const duplicateRow2 = createFigures(paddedRow2);
 
       seminarEl.innerHTML = `
         <div class="gallery-wrapper">
           <div class="doc-gallery">
             <div class="doc-gallery-track">
               <div class="track-original">${originalRow1}</div>
-              <div class="track-duplicate">${cloneRow1}</div>
+              <div class="track-duplicate">${duplicateRow1}</div>
             </div>
           </div>
           <div class="doc-gallery second-row" style="margin-top: 1rem;">
             <div class="doc-gallery-track track-reverse">
               <div class="track-original">${originalRow2}</div>
-              <div class="track-duplicate">${cloneRow2}</div>
+              <div class="track-duplicate">${duplicateRow2}</div>
             </div>
           </div>
           <button class="btn-view-more" onclick="window.toggleGallery(this)">${viewMoreText}</button>

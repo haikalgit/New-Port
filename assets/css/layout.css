@@ -1,5 +1,5 @@
 /* =========================================================
-   3. LAYOUT
+   LAYOUT
    ========================================================= */
 .container { max-width: var(--container-max); margin: 0 auto; padding: 0 var(--space-6); }
 

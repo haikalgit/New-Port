@@ -1,5 +1,5 @@
 /* =========================================================
-   2. RESET & BASE STYLES
+   RESET & BASE STYLES
    ========================================================= */
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: var(--header-height); }
