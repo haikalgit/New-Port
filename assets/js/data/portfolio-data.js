@@ -343,6 +343,11 @@ const PortfolioData = {
   cv: {
     fileName: "CV_MuhammadHaikal_DA.pdf",
     filePath: "documents/CV_MuhammadHaikal_DA.pdf",
-    previewImage: "documents/CV_MuhammadHaikal_DA.jpg",
+    // 1. Ubah namanya menjadi previewImages
+    // 2. Gunakan tanda kurung siku [ ] dan pisahkan dengan koma
+    previewImages: [
+      ["documents/CV_MuhammadHaikal_DA_Page1.jpg"], 
+      ["documents/CV_MuhammadHaikal_DA_Page2.jpg"],
+    ],
   },
 };

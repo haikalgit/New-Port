@@ -34,14 +34,7 @@ class PortfolioApp {
     const marqueeTracks = document.querySelectorAll('.doc-gallery-track');
     if (marqueeTracks.length === 0) return;
 
-    // SATU angka ini menentukan kecepatan geser SEMUA galeri (piksel/detik).
     const PIXELS_PER_SECOND = 50;
-
-    // DEBUG: buka DevTools (F12) > Console, lalu reload halaman.
-    // Kalau baris ini TIDAK muncul, atau angkanya bukan yang barusan
-    // kamu ubah -> file main.js yang jalan di browser masih versi LAMA
-    // (di-cache browser), bukan masalah kode.
-    console.log('[Marquee] PIXELS_PER_SECOND aktif:', PIXELS_PER_SECOND);
 
     const updateMarqueeSpeed = () => {
       marqueeTracks.forEach(track => {
@@ -52,11 +45,6 @@ class PortfolioApp {
         const duration = travelDistance / PIXELS_PER_SECOND;
         track.style.animationDuration = `${duration}s`;
       });
-
-      // DEBUG tambahan: cek durasi yang benar-benar diterapkan ke DOM.
-      console.log('[Marquee] Durasi diterapkan:',
-        Array.from(marqueeTracks).map(t => t.style.animationDuration)
-      );
     };
 
     updateMarqueeSpeed();
@@ -64,15 +52,16 @@ class PortfolioApp {
     window.addEventListener('resize', updateMarqueeSpeed);
     setTimeout(updateMarqueeSpeed, 300);
 
+    // KUNCI: Animasi di jeda (pause) saat keluar viewport, dilanjutkan (running) saat masuk
     const marqueeObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          entry.target.style.animationName = 'none';
-          void entry.target.offsetWidth;
-          entry.target.style.animationName = 'scrollMarquee';
+          entry.target.style.animationPlayState = 'running';
+        } else {
+          entry.target.style.animationPlayState = 'paused';
         }
       });
-    }, { threshold: 0.1, rootMargin: "0px 0px -10% 0px" });
+    }, { threshold: 0, rootMargin: "50px 0px 50px 0px" });
 
     marqueeTracks.forEach(track => marqueeObserver.observe(track));
   }
@@ -129,6 +118,9 @@ class PortfolioApp {
         
         updateLightboxImage('none'); 
         lightbox.classList.add('is-open');
+        
+        // KUNCI: Kunci scroll body saat Lightbox terbuka
+        document.body.classList.add('no-scroll');
       }
     });
 
@@ -145,6 +137,10 @@ class PortfolioApp {
 
     const closeLightbox = () => {
       lightbox.classList.remove('is-open');
+      
+      // KUNCI: Lepas kunci scroll saat Lightbox tertutup
+      document.body.classList.remove('no-scroll');
+      
       setTimeout(() => { 
         lightboxImg.src = ''; 
         lightboxDialog.classList.remove('slide-next', 'slide-prev'); 
@@ -176,7 +172,7 @@ class PortfolioApp {
       if (lightbox.classList.contains('is-open')) {
         if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); nextBtn.click(); }
         else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); prevBtn.click(); }
-        else if (e.key === 'Escape') { closeLightbox(); }
+        else if (e.key === 'Escape') { closeLightbox(); } // Tombol ESC
       }
     });
   }
@@ -187,6 +183,12 @@ class PortfolioApp {
     const gridCloseBtn = document.getElementById('gridCloseBtn');
 
     if (!gridModal) return;
+
+    // FUNGSI UNTUK MENUTUP MODAL
+    const closeGridModal = () => {
+      gridModal.classList.remove('is-open');
+      document.body.classList.remove('no-scroll'); // Lepaskan scroll body
+    };
 
     window.toggleGallery = (btn) => {
       const wrapper = btn.closest('.gallery-wrapper');
@@ -222,13 +224,21 @@ class PortfolioApp {
         });
 
         gridModal.classList.add('is-open');
+        document.body.classList.add('no-scroll'); // Kunci scroll body
       }
     };
 
-    gridCloseBtn.addEventListener('click', () => { gridModal.classList.remove('is-open'); });
+    gridCloseBtn.addEventListener('click', closeGridModal);
     
     gridModal.addEventListener('click', (e) => { 
-      if (e.target === gridModal) gridModal.classList.remove('is-open'); 
+      if (e.target === gridModal) closeGridModal(); 
+    });
+
+    // KUNCI: Tombol Escape untuk keluar dari Modal Selengkapnya
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && gridModal.classList.contains('is-open')) {
+        closeGridModal();
+      }
     });
   }
 }

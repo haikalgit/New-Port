@@ -57,17 +57,84 @@
 .kpi-label { font-size: var(--fs-sm); color: var(--color-text-muted); margin-top: var(--space-2); }
 .kpi-sparkline { margin-top: var(--space-3); width: 100%; height: 26px; display: block; }
 
-/* Panels & Tags */
-.panel { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-7); box-shadow: var(--shadow-sm); }
+/* =========================================================
+   PANELS & SKILL TAGS (DIPERBARUI)
+   ========================================================= */
+
+/* Membuat Panel lebih menonjol (Elevated) */
+.panel { 
+  background: linear-gradient(180deg, #ffffff 0%, #fcfdfe 100%); 
+  border: 1px solid rgba(180, 212, 255, 0.4); 
+  border-radius: var(--radius-lg); 
+  padding: var(--space-7); 
+  box-shadow: 0 10px 40px rgba(23, 107, 135, 0.05); 
+}
+
 .panel-header { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); }
 .panel-icon { width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .panel-icon svg { width: 20px; height: 20px; }
 .panel-header h3 { margin: 0; font-size: var(--fs-lg); }
 
+/* Judul Kategori (Teknis & Non-Teknis) */
+.tag-group-title { 
+  font-size: 1.05rem; 
+  font-weight: 600; 
+  color: var(--color-primary-dark); 
+  margin-bottom: 1.2rem; 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+}
+
+.tag-group-title svg {
+  color: var(--color-accent);
+}
+
 .tag-cloud { display: flex; flex-wrap: wrap; gap: var(--space-3); }
-.tag-chip { font-family: var(--font-mono); font-size: var(--fs-sm); padding: var(--space-3) var(--space-5); border-radius: var(--radius-pill); background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-primary-dark); transition: all var(--transition-base); }
-.tag-chip:hover { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-white); transform: translateY(-2px); }
+
+/* Desain Awal Tag Chip (Kapsul) */
+.tag-chip { 
+  font-family: var(--font-mono); 
+  font-size: var(--fs-sm); 
+  font-weight: 500;
+  padding: 0.6rem 1.4rem; 
+  border-radius: var(--radius-pill); 
+  background: var(--color-bg); 
+  border: 1px solid var(--color-border); 
+  color: var(--color-primary-dark); 
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
+  position: relative;
+  /* Disembunyikan di awal untuk animasi scroll */
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Animasi Muncul Bergelombang saat di-Scroll */
+.reveal.is-visible .tag-chip {
+  animation: popInChip 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  /* Delay diatur dinamis lewat JavaScript */
+  animation-delay: calc(var(--delay) * 0.05s);
+}
+
+@keyframes popInChip {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Efek Elegan saat disorot Mouse (Hover) */
+.tag-chip:hover { 
+  background: var(--gradient-accent); 
+  border-color: transparent; 
+  color: var(--color-white); 
+  transform: translateY(-5px) scale(1.05) !important; /* Terangkat dan membesar sedikit */
+  box-shadow: 0 8px 20px rgba(134, 182, 246, 0.4); /* Glow shadow */
+  z-index: 2;
+}
+
 .tag-group { margin-bottom: var(--space-6); }
+.tag-group:last-child { margin-bottom: 0; }
 
 /* Timeline (Experience / Education) */
 .timeline-item { display: grid; grid-template-columns: 70px 1fr; gap: var(--space-6); }
@@ -139,10 +206,53 @@
 .lightbox-btn:hover { background: var(--color-primary); color: var(--color-white); transform: translateY(-50%) scale(1.1); }
 .lightbox-prev { left: 30px; }
 .lightbox-next { right: 30px; }
-.grid-dialog { width: 100%; max-width: 800px !important; background: var(--color-bg-alt, #ffffff); padding: 2rem !important; max-height: 85vh; display: flex; flex-direction: column; }
-.grid-dialog-header { font-family: var(--font-display); font-size: var(--fs-xl); color: var(--color-primary-dark); margin-bottom: 1.5rem; text-align: center; font-weight: 700; }
-.grid-modal-body { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; overflow-y: auto; padding-right: 0.5rem; }
-.grid-modal-body figure { margin: 0; width: 100% !important; }
+.grid-dialog { 
+  width: 100%; 
+  max-width: 1200px !important; /* Kontainer jauh lebih lebar */
+  background: var(--color-bg-alt, #ffffff); 
+  padding: 2.5rem !important; 
+  max-height: 92vh; /* Memaksimalkan tinggi layar agar muat banyak */
+  display: flex; 
+  flex-direction: column; 
+}
+
+.grid-dialog-header { 
+  font-family: var(--font-display); 
+  font-size: var(--fs-xl); 
+  color: var(--color-primary-dark); 
+  margin-bottom: 2rem; 
+  text-align: center !important; /* Paksa judul ke tengah */
+  font-weight: 700; 
+}
+
+.grid-modal-body { 
+  display: grid !important; /* Paksa mode galeri */
+  grid-template-columns: repeat(4, 1fr) !important; /* Tampilkan 4 foto berdampingan */
+  gap: 1.5rem !important; /* Jarak antar foto */
+  overflow-y: auto; 
+  padding-right: 1rem; 
+}
+
+.grid-modal-body figure { 
+  margin: 0; 
+  width: 100% !important; 
+}
+
+/* --- Responsif agar tetap rapi di layar lebih kecil --- */
+@media (max-width: 1024px) {
+  .grid-modal-body { 
+    grid-template-columns: repeat(3, 1fr) !important; /* 3 kolom untuk laptop/tablet */
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-modal-body { 
+    grid-template-columns: repeat(2, 1fr) !important; /* 2 kolom untuk HP */
+  }
+  .grid-dialog {
+    padding: 1.5rem !important; /* Padding disesuaikan untuk HP */
+  }
+}
 #gridModal { z-index: 9998; }
 
 /* Cards (Certificates & Projects) */
@@ -224,24 +334,184 @@
 
 /* ---------- CTA Panel (Tertarik Berkolaborasi) ---------- */
 .cta-panel { 
-  background: var(--gradient-accent); 
-  border-radius: 12px; /* Sudut lebih kotak */
+  position: relative; 
+  overflow: hidden; /* Mencegah ornamen keluar batas kotak */
+  
+  /* Gradient 4 warna yang lebih kaya (Tema biru modern) */
+  background: linear-gradient(-45deg, #176B87, #2A8CB4, #86B6F6, #176B87);
+  background-size: 300% 300%;
+  
+  border-radius: 24px !important; /* Ujung membulat agar lebih elegan */
   padding: var(--space-8); 
   text-align: center; 
   color: var(--color-white); 
-  position: relative; 
-  overflow: hidden; 
+  
+  /* Bayangan lembut agar kotak terlihat melayang */
+  box-shadow: 0 15px 35px rgba(23, 107, 135, 0.15);
   max-width: 850px; 
   margin: 0 auto; 
+  
+  /* Menjalankan animasi background mengalir */
+  animation: gradientMoveCTA 10s ease infinite;
+  
+  /* Transisi saat di-hover */
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
-.cta-panel h2 { color: var(--color-white); }
-.cta-panel p { color: rgba(255,255,255,0.85); max-width: 520px; margin-left: auto; margin-right: auto; }
-.cta-actions { display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap; margin-top: var(--space-6); }
-.cta-panel .btn--primary { background: var(--color-white); color: var(--color-primary-dark); }
-.cta-panel .btn--primary:hover { background: var(--color-bg); }
-.cta-panel .btn--ghost { border-color: rgba(255,255,255,0.5); color: var(--color-white); }
-.cta-panel .btn--ghost:hover { background: rgba(255,255,255,0.12); border-color: var(--color-white); }
+
+/* Efek saat mouse diarahkan ke kotak */
+.cta-panel:hover {
+  transform: translateY(-8px); /* Melayang naik sedikit */
+  box-shadow: 0 25px 45px rgba(23, 107, 135, 0.25); /* Bayangan membesar */
+}
+
+/* Animasi Latar Belakang Bergerak */
+@keyframes gradientMoveCTA {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Ornamen Abstrak Kaca di dalam Kotak */
+.cta-panel::before,
+.cta-panel::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08); /* Putih transparan */
+  z-index: 0; 
+  transition: transform 0.8s ease;
+}
+
+/* Lingkaran Kiri Atas */
+.cta-panel::before {
+  width: 250px;
+  height: 250px;
+  top: -80px;
+  left: -80px;
+}
+
+/* Lingkaran Kanan Bawah */
+.cta-panel::after {
+  width: 400px;
+  height: 400px;
+  bottom: -150px;
+  right: -100px;
+}
+
+/* Ornamen ikut bergerak saat kotak di-hover (Efek Parallax) */
+.cta-panel:hover::before { transform: scale(1.1) translate(15px, 15px); }
+.cta-panel:hover::after { transform: scale(1.05) translate(-20px, -20px); }
+
+/* Pengaturan Teks (Z-index dinaikkan agar tidak tertutup ornamen) */
+.cta-panel h2 { color: var(--color-white); position: relative; z-index: 2; }
+.cta-panel p { 
+  color: rgba(255,255,255,0.9); 
+  max-width: 520px; 
+  margin-left: auto; 
+  margin-right: auto; 
+  position: relative; 
+  z-index: 2; 
+}
+.cta-actions { 
+  display: flex; 
+  gap: var(--space-4); 
+  justify-content: center; 
+  flex-wrap: wrap; 
+  margin-top: var(--space-6); 
+  position: relative; 
+  z-index: 2; 
+}
+
+/* Tombol di dalam CTA (Ditambah animasi membesar saat disentuh) */
+.cta-panel .btn--primary { 
+  background: var(--color-white); 
+  color: var(--color-primary-dark); 
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.cta-panel .btn--primary:hover { 
+  background: var(--color-bg); 
+  transform: scale(1.05); 
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.cta-panel .btn--ghost { 
+  border-color: rgba(255,255,255,0.5); 
+  color: var(--color-white); 
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.cta-panel .btn--ghost:hover { 
+  background: rgba(255,255,255,0.15); 
+  border-color: var(--color-white); 
+  transform: scale(1.05); 
+}
 
 /* Image Placeholder fallback */
 .img-placeholder { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: var(--space-2); width: 100%; height: 100%; background: repeating-linear-gradient(135deg, var(--color-bg) 0 12px, #E4EEFC 12px 24px); color: var(--color-primary); font-family: var(--font-mono); font-size: 0.65rem; text-align: center; text-transform: uppercase; letter-spacing: 0.06em; padding: var(--space-3); }
 .img-placeholder svg { width: 26px; height: 26px; opacity: 0.6; }
+
+/* =========================================================
+   ANIMASI SLIDER CV (MULTI-HALAMAN) & TOMBOL KONTROL
+   ========================================================= */
+
+/* Wadah pemotong gambar agar tidak meluber keluar kusen */
+.cv-slider-container {
+  overflow: hidden !important;
+  position: relative;
+  width: 100%;
+}
+
+/* Rel yang menggeser gambar kertas ke kiri dan kanan */
+.cv-slider-track {
+  display: flex;
+  width: 100%;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); /* Efek pergeseran kertas */
+  will-change: transform;
+}
+
+/* Gambar CV dilarang mengecil dan wajib menyesuaikan lebar penuh */
+.cv-slide-img {
+  width: 100%;
+  flex-shrink: 0;
+  object-fit: contain;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Sedikit bayangan di kertas */
+}
+
+/* Penempatan Tombol Navigasi Terkunci Sempurna */
+.cv-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* Width akan dikunci secara otomatis (dalam pixel) oleh Javascript */
+  margin: 1.2rem auto 0 auto; /* Menengahkannya persis di bawah bingkai */
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Penunjuk Halaman (Teks di tengah) */
+.cv-controls span {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  font-size: 0.95rem; /* Sedikit diperbesar dari 0.8rem agar seimbang */
+}
+
+/* Style Tombol Panah (Bentuk Kapsul / Rounded) */
+.cv-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1.2rem !important; /* Padding kanan-kiri sedikit dilebarkan agar bentuk kapsulnya sempurna */
+  font-size: 0.9rem !important; 
+  font-weight: 600;
+  
+  /* PERBAIKAN: Ubah menjadi kapsul melengkung sempurna */
+  border-radius: 50px !important; 
+}
+
+/* Ketika tombol tidak bisa diklik */
+.cv-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  background-color: transparent !important;
+}

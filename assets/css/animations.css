@@ -13,3 +13,356 @@
 .slide-next { animation: slideInNext 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 .slide-prev { animation: slideInPrev 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 .track-reverse { animation-direction: reverse !important; }
+
+/* =========================================================
+   ANIMASI HERO (MENGAMBANG, DENYUT, & KURSOR KETIK)
+   ========================================================= */
+/* 1. Animasi Mengambang Halus untuk Frame Foto */
+@keyframes floatProfile {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+/* 2. Animasi Denyutan Cahaya pada Foto (Pulse Glow) */
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(134, 182, 246, 0.6); }
+  70% { box-shadow: 0 0 0 25px rgba(134, 182, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(134, 182, 246, 0); }
+}
+
+.hero-photo-frame {
+  animation: floatProfile 6s ease-in-out infinite;
+}
+
+.photo-inner {
+  animation: pulseGlow 3s infinite;
+  position: relative;
+  z-index: 2;
+}
+
+/* 3. Efek Interaktif (Hover) pada Kartu Statistik Foto */
+.hero-stat-chip {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hero-stat-chip:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: var(--shadow-lg);
+  z-index: 10;
+}
+
+/* 4. Kursor Animasi Mengetik */
+.tw-cursor {
+  display: inline-block;
+  color: var(--color-primary);
+  font-weight: 700;
+  margin-left: 2px;
+  animation: blinkCursor 0.8s infinite;
+}
+@keyframes blinkCursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* 5. Animasi Muncul Bertahap (Staggered Entrance) */
+.hero-desc-anim { opacity: 0; animation: fadeUp 0.8s ease-out 0.5s forwards; }
+.hero-actions-anim { opacity: 0; animation: fadeUp 0.8s ease-out 0.8s forwards; }
+
+/* =========================================================
+   ANIMASI BADGE ROLE V3 (FONT ASLI + GRAFIK ANIMASI)
+   ========================================================= */
+
+/* 1. Base Style & Breathing Animation (Gaya Teks Dikembalikan) */
+.animated-role-badge {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  /* Animasi bernapas (naik turun & border menyala perlahan) */
+  animation: badgeBreathe 4s ease-in-out infinite;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  /* Dihapus: font-weight tebal dan background gradient, agar kembali ke gaya asli */
+}
+
+@keyframes badgeBreathe {
+  0%, 100% { 
+    box-shadow: 0 4px 15px rgba(23, 107, 135, 0.05); 
+    border-color: var(--color-border); 
+    transform: translateY(0);
+  }
+  50% { 
+    box-shadow: 0 8px 25px rgba(134, 182, 246, 0.25); 
+    border-color: rgba(134, 182, 246, 0.8); 
+    transform: translateY(-2px); 
+  }
+}
+
+/* 4. Efek Saat Disentuh Mouse (Hover) */
+.animated-role-badge:hover {
+  animation-play-state: paused; 
+  transform: translateY(-4px) scale(1.03) !important;
+  box-shadow: 0 12px 30px rgba(23, 107, 135, 0.15) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary-dark) !important;
+}
+
+/* Pause juga efek grafik saat di-hover agar lebih rapi */
+.animated-role-badge:hover .anim-bar {
+  animation-play-state: paused;
+}
+
+/* =========================================================
+   INDIKATOR GRAFIK ANIMASI (TREND LINE MERAH & HIJAU)
+   ========================================================= */
+.trend-chart {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+/* Animasi garis merah (turun) */
+.trend-red {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  animation: drawTrendRed 4s infinite ease-out;
+}
+
+/* Animasi garis hijau (naik) */
+.trend-green {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: drawTrendGreen 4s infinite ease-out;
+}
+
+/* Titik hijau di ujung puncak */
+.trend-dot {
+  opacity: 0;
+  transform-origin: 24px 1px;
+  animation: showTrendDot 4s infinite ease-out;
+}
+
+/* Keyframes: Menggambar garis merah di awal */
+@keyframes drawTrendRed {
+  0% { stroke-dashoffset: 20; opacity: 1; }
+  15%, 85% { stroke-dashoffset: 0; opacity: 1; }
+  92%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+/* Keyframes: Menggambar garis hijau (Dimulai tepat setelah merah selesai) */
+@keyframes drawTrendGreen {
+  0%, 15% { stroke-dashoffset: 30; opacity: 1; }
+  35%, 85% { stroke-dashoffset: 0; opacity: 1; }
+  92%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+/* Keyframes: Memunculkan titik hijau setelah garis selesai */
+@keyframes showTrendDot {
+  0%, 30% { opacity: 0; transform: scale(0); }
+  40%, 85% { opacity: 1; transform: scale(1); }
+  92%, 100% { opacity: 0; transform: scale(0); }
+}
+
+/* Memberhentikan animasi saat tombol disentuh (opsional agar rapi) */
+.animated-role-badge:hover .trend-red,
+.animated-role-badge:hover .trend-green,
+.animated-role-badge:hover .trend-dot {
+  animation-play-state: paused;
+}
+
+/* =========================================================
+   ANIMASI TIMELINE (PENGALAMAN & PENDIDIKAN)
+   ========================================================= */
+
+/* 1. STATE AWAL (Elemen bersiap-siap disembunyikan sebelum masuk layar) */
+.timeline-item.reveal .timeline-logo {
+  opacity: 0;
+  transform: scale(0.3) translateY(20px);
+  transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); /* Pantulan elastis */
+}
+
+.timeline-item.reveal .timeline-rail::before {
+  transform-origin: top; /* Garis mulai dari atas */
+  transform: scaleY(0); /* Garis dipendekkan 100% */
+  transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1) 0.3s; /* Delay agar logo muncul duluan */
+}
+
+.timeline-item.reveal .timeline-body {
+  opacity: 0;
+  transform: translateY(40px); /* Konten turun ke bawah */
+  transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.2s; /* Delay sedikit setelah logo */
+}
+
+/* 2. STATE AKHIR (Elemen muncul saat di-scroll / mendapat class is-visible) */
+.timeline-item.reveal.is-visible .timeline-logo {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.timeline-item.reveal.is-visible .timeline-rail::before {
+  transform: scaleY(1); /* Garis memanjang penuh ke bawah */
+}
+
+.timeline-item.reveal.is-visible .timeline-body {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 3. EFEK INTERAKTIF (HOVER) PADA LOGO */
+.timeline-logo {
+  border-radius: 12px; /* Opsional: Membuat sudut kotak logo sedikit membulat */
+  background: var(--color-white);
+  padding: 4px;
+  box-shadow: 0 4px 15px rgba(23, 107, 135, 0.08); /* Bayangan lembut */
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important; /* Timpa transition saat reveal selesai */
+}
+
+.timeline-item:hover .timeline-logo {
+  transform: scale(1.15) translateY(-2px) !important; /* Logo membesar saat item di-hover */
+  box-shadow: 0 8px 25px rgba(23, 107, 135, 0.15);
+}
+
+/* Opsional: Membuat bullet point pada list muncul sedikit lebih rapi */
+.timeline-body ul li {
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+.timeline-body ul li:hover {
+  color: var(--color-primary-dark);
+  transform: translateX(4px); /* Teks sedikit maju ke kanan saat disorot */
+}
+
+/* =========================================================
+   ANIMASI KARTU SERTIFIKASI & BOOTCAMP (MUNCUL 1 PER 1)
+   ========================================================= */
+
+/* State awal (Tersembunyi dan sedikit turun ke bawah) */
+.cert-card.reveal {
+  opacity: 0;
+  transform: translateY(30px) scale(0.95);
+  transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  /* PERBAIKAN: Jeda sedikit diperlama menjadi 0.15 detik per kartu */
+  transition-delay: calc(var(--card-delay, 0) * 0.15s);
+}
+
+/* State muncul saat masuk layar */
+.cert-card.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* 
+  PENTING: Menonaktifkan delay saat animasi selesai (is-visible), 
+  agar saat disentuh mouse langsung merespons tanpa delay.
+*/
+.cert-card.reveal.is-visible:hover {
+  transition-delay: 0s;
+  transform: translateY(-6px) scale(1);
+  box-shadow: var(--shadow-md);
+}
+
+/* =========================================================
+   LAYOUT & ANIMASI PROJECT CARD (4 KOLOM)
+   ========================================================= */
+
+/* Paksa layout menjadi 4 kolom */
+#projectGrid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: var(--space-5);
+}
+
+/* Penyesuaian teks agar proporsional karena kotak lebih kecil */
+#projectGrid .project-title { font-size: 1.05rem; line-height: 1.3; }
+#projectGrid .project-desc { font-size: 0.8rem; line-height: 1.5; }
+#projectGrid .project-body { padding: var(--space-5); }
+
+/* State Awal: Tersembunyi untuk Animasi Kemunculan Berurutan */
+.project-card.reveal {
+  opacity: 0;
+  transform: translateY(40px) scale(0.95);
+  transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  /* Jeda 0.15s per kartu (diambil dari index JS) */
+  transition-delay: calc(var(--card-delay, 0) * 0.15s);
+}
+
+/* State Muncul: Saat di-scroll ke layar */
+.project-card.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Efek Hover Interaktif (Mematikan delay agar sangat responsif) */
+.project-card.reveal.is-visible:hover {
+  transition-delay: 0s;
+  transform: translateY(-8px) scale(1.02); /* Sedikit terangkat & membesar */
+  box-shadow: 0 15px 35px rgba(23, 107, 135, 0.15); /* Bayangan mewah */
+  border-color: var(--color-border);
+}
+
+/* Zoom halus pada gambar saat hover */
+.project-card:hover .project-media img {
+  transform: scale(1.08); 
+}
+
+/* ----- Responsif agar tidak gepeng di layar kecil ----- */
+@media (max-width: 1024px) {
+  #projectGrid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+@media (max-width: 600px) {
+  #projectGrid { grid-template-columns: 1fr !important; }
+}
+
+/* =========================================================
+   ANIMASI BINGKAI & BUKA TIRAI CV (ATAS KE BAWAH)
+   ========================================================= */
+
+/* 1. BINGKAI FRAME CV (STYLE BIRU MUDA) */
+.cv-frame-wrap {
+  position: relative !important;
+  overflow: hidden !important;
+  background-color: #ffffff !important;
+  /* Border biru muda tipis sesuai referensi gambar */
+  border: 2px solid rgba(134, 182, 246, 0.5) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 40px rgba(23, 107, 135, 0.05) !important;
+  padding: 1.5rem !important;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease !important;
+}
+
+/* Hover Efek pada Bingkai */
+.cv-frame-wrap:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(134, 182, 246, 0.25) !important;
+  border-color: rgba(134, 182, 246, 0.8) !important;
+}
+
+/* 2. TEKSTUR TIRAI (SATU LAPIS FULL) */
+.cv-frame-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Gradien tekstur tirai biru muda agar matching dengan border */
+  background: repeating-linear-gradient(
+    90deg,
+    #f8fbff 0px,
+    #e8f2ff 20px,
+    #dbe8ff 40px,
+    #f8fbff 60px
+  );
+  z-index: 10;
+  /* PERBAIKAN: Jeda awal (0.4s) diubah menjadi 0s agar langsung terbuka saat masuk layar */
+  transition: transform 2.5s cubic-bezier(0.77, 0, 0.175, 1) 0s; 
+  box-shadow: 0 -10px 25px rgba(134, 182, 246, 0.5); /* Bayangan di bagian atas tirai */
+}
+
+/* 3. ANIMASI BUKA TIRAI (Membuka dari atas, turun ke bawah) */
+.cv-frame-wrap.is-visible::before {
+  /* PERBAIKAN: Ditambah 50px agar seluruh bayangan di ujung atas tirai ikut tersembunyi (melewati batas bawah) */
+  transform: translateY(calc(100% + 50px)); 
+}
+
+/* 4. PASTIKAN TIRAI KANAN SEBELUMNYA HILANG */
+.cv-frame-wrap::after {
+  display: none !important;
+}

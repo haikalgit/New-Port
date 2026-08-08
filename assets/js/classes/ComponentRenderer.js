@@ -5,7 +5,10 @@
  * PortfolioData dan bahasa aktif (window.currentLang).
  * ---------------------------------------------------------
  */
+
 class ComponentRenderer {
+  #typewriterTimer = null;
+
   constructor(data) {
     this.data = data;
   }
@@ -50,21 +53,6 @@ class ComponentRenderer {
     </svg>`;
   }
 
-  /**
-   * ============================================================
-   * NORMALISASI JUMLAH ITEM MARQUEE (kunci penyamaan kecepatan)
-   * ============================================================
-   * Semua galeri marquee (Pengalaman, Pendidikan, Seminar) dipadatkan
-   * ke jumlah item yang SAMA PERSIS (= jumlah terbanyak di antara semua
-   * galeri yang ada). Dengan jumlah figure yang identik di setiap galeri,
-   * lebar total track (figure x count + gap x count) otomatis identik,
-   * sehingga kecepatan visual otomatis sama tanpa perlu kalkulasi lebar
-   * yang rumit dan rawan meleset.
-   *
-   * Foto yang jumlahnya kurang akan diulang (cycle) sampai mencapai
-   * jumlah target — ini aman untuk marquee karena kontennya memang
-   * akan terlihat berulang saat loop.
-   */
   #padItems(items, targetCount) {
     if (!items || items.length === 0) return [];
     if (items.length >= targetCount) return items;
@@ -98,6 +86,8 @@ class ComponentRenderer {
     const lang = this.#lang();
     if (!el) return;
 
+    this.heroRevealed = false;
+
     const summaryText = typeof profile.summary === 'object' ? profile.summary[lang] : profile.summary;
     const greetingText = typeof profile.greeting === 'object' ? profile.greeting[lang] : "Halo, saya";
     const btnCvText = lang === 'en' ? "View My CV" : "Lihat CV Saya";
@@ -125,18 +115,108 @@ class ComponentRenderer {
               <div class="chip-label">${typeof kpis[1].label === 'object' ? kpis[1].label[lang] : kpis[1].label}</div>
             </div>
           </div>
-          <span class="eyebrow-badge" style="margin-top: 1.5rem; margin-bottom: 0;">${profile.role}</span>
+          
+          <span class="eyebrow-badge animated-role-badge" style="margin-top: 1.5rem; margin-bottom: 0;">
+            <span class="trend-chart">
+              <svg viewBox="0 0 24 12" width="28" height="14">
+                <path d="M0,3 H24 M0,6 H24 M0,9 H24" stroke="#cbd5e1" stroke-width="0.5" stroke-dasharray="2 1"/>
+                <polyline points="0,6 4,4 9,10" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="trend-red" />
+                <polyline points="9,10 14,3 18,5 24,1" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="trend-green" />
+                <circle cx="24" cy="1" r="1.5" fill="#10b981" class="trend-dot" />
+              </svg>
+            </span>
+            ${profile.role}
+          </span>
+          
         </div>
         <div>
-          <h1 class="hero-title">${greetingText}<br><span class="highlight">${profile.name}</span></h1>
-          <p class="hero-desc">${summaryText}</p>
-          <div class="hero-actions">
+          <h1 class="hero-title" style="min-height: 2.4em; line-height: 1.2;">
+            <span id="tw-line1"></span><br>
+            <span id="tw-line2" class="highlight"></span><span class="tw-cursor">|</span>
+          </h1>
+          
+          <p id="heroDesc" class="hero-desc" style="opacity: 0; transform: translateY(24px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);">${summaryText}</p>
+          <div id="heroActions" class="hero-actions" style="opacity: 0; transform: translateY(24px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;">
             <a href="#cv" class="btn btn--primary">${IconLibrary.get("fileText")} ${btnCvText}</a>
             <a href="#portofolio" class="btn btn--ghost">${btnExploreText} ${IconLibrary.get("arrowRight")}</a>
           </div>
         </div>
       </div>
     `;
+
+    this.#startTypewriter(greetingText, profile.name);
+
+    setTimeout(() => {
+      this.#revealHeroElements();
+    }, 100);
+  }
+
+  #revealHeroElements() {
+    if (this.heroRevealed) return;
+    this.heroRevealed = true;
+
+    const descEl = document.getElementById("heroDesc");
+    const actionsEl = document.getElementById("heroActions");
+    const kpiCards = document.querySelectorAll('.kpi-card');
+
+    if (descEl) { descEl.style.opacity = "1"; descEl.style.transform = "translateY(0)"; }
+    if (actionsEl) { actionsEl.style.opacity = "1"; actionsEl.style.transform = "translateY(0)"; }
+
+    kpiCards.forEach((card, index) => {
+      setTimeout(() => {
+        card.style.opacity = "1";
+        card.style.transform = ""; 
+        setTimeout(() => { card.style.transition = ""; }, 800);
+      }, 200 + (index * 150));
+    });
+  }
+
+  #startTypewriter(text1, text2) {
+    const el1 = document.getElementById("tw-line1");
+    const el2 = document.getElementById("tw-line2");
+    
+    if (!el1 || !el2) return;
+    if (this.#typewriterTimer) clearTimeout(this.#typewriterTimer);
+
+    let line1Current = "";
+    let line2Current = "";
+    let phase = "line1"; 
+
+    const type = () => {
+      let typingSpeed = 80;
+
+      if (phase === "line1") {
+        line1Current = text1.substring(0, line1Current.length + 1);
+        el1.textContent = line1Current;
+        if (line1Current === text1) {
+          phase = "line2";
+          typingSpeed = 300; 
+        }
+      } 
+      else if (phase === "line2") {
+        line2Current = text2.substring(0, line2Current.length + 1);
+        el2.textContent = line2Current;
+
+        if (line2Current === text2) {
+          phase = "deletingLine2";
+          typingSpeed = 2500; 
+        }
+      }
+      else if (phase === "deletingLine2") {
+        typingSpeed = 40; 
+        line2Current = text2.substring(0, line2Current.length - 1);
+        el2.textContent = line2Current;
+
+        if (line2Current === "") {
+          phase = "line2"; 
+          typingSpeed = 500; 
+        }
+      }
+
+      this.#typewriterTimer = setTimeout(type, typingSpeed);
+    };
+
+    type();
   }
 
   #renderKpis() {
@@ -149,7 +229,7 @@ class ComponentRenderer {
           const tagText = typeof k.tag === 'object' ? k.tag[lang] : k.tag;
           const labelText = typeof k.label === 'object' ? k.label[lang] : k.label;
           return `
-          <div class="kpi-card" data-tag="${tagText}">
+          <div class="kpi-card" data-tag="${tagText}" style="opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease-out, transform 0.8s ease-out;">
             <div class="kpi-value">${k.value}</div>
             <div class="kpi-label">${labelText}</div>
             ${this.#sparkline(k.spark)}
@@ -178,16 +258,21 @@ class ComponentRenderer {
     const techArr = Array.isArray(technical) ? technical : (technical[lang] || technical['id']);
     const softArr = Array.isArray(soft) ? soft : (soft[lang] || soft['id']);
 
-    const chips = (arr) => arr.map((s) => `<span class="tag-chip">${s}</span>`).join("");
+    const chips = (arr, startIndex = 0) => arr.map((s, index) => 
+      `<span class="tag-chip" style="--delay: ${startIndex + index};">${s}</span>`
+    ).join("");
+    
+    const iconTech = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`;
+    const iconSoft = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
     
     el.innerHTML = `
-      <div class="tag-group">
-        <div class="tag-group-title">${tTitle}</div>
-        <div class="tag-cloud">${chips(techArr)}</div>
+      <div class="tag-group reveal">
+        <div class="tag-group-title">${iconTech} ${tTitle}</div>
+        <div class="tag-cloud">${chips(techArr, 0)}</div>
       </div>
-      <div class="tag-group">
-        <div class="tag-group-title">${sTitle}</div>
-        <div class="tag-cloud">${chips(softArr)}</div>
+      <div class="tag-group reveal" style="margin-top: 3rem;">
+        <div class="tag-group-title">${iconSoft} ${sTitle}</div>
+        <div class="tag-cloud">${chips(softArr, techArr.length)}</div>
       </div>
     `;
   }
@@ -211,15 +296,10 @@ class ComponentRenderer {
         const viewMoreText = lang === 'en' ? 'More Documentation ▾' : 'Dokumentasi Selengkapnya ▾';
         const captionText = lang === 'en' ? 'Developer team activity & meeting documentation' : 'Dokumentasi kegiatan & rapat tim developer';
 
-        // track-original: foto ASLI apa adanya (dipakai lightbox & grid modal, jangan diubah)
         const galleryItems = exp.gallery
           .map((g) => `<figure><div class="doc-thumb">${this.#img(g.src, g.caption)}</div></figure>`)
           .join("");
 
-        // track-duplicate: dipadatkan ke jumlah target GLOBAL yang sama untuk semua galeri,
-        // lalu digandakan SIMETRIS 1x (bukan rasio ganjil) — supaya lebar total track
-        // (original + duplicate) SAMA di semua galeri, dan trik loop translateX(-50%)
-        // tetap presisi seperti desain aslinya.
         const paddedItems = this.#padItems(exp.gallery, marqueeMax);
         const duplicatedItems = paddedItems
           .map((g) => `<figure><div class="doc-thumb">${this.#img(g.src, g.caption)}</div></figure>`)
@@ -321,12 +401,14 @@ class ComponentRenderer {
     const certEl = this.#mount("certGrid");
     const lang = this.#lang();
     if (certEl && this.data.certifications) {
-      certEl.innerHTML = this.data.certifications.map(c => this.#generateCertHTML(c, lang)).join("");
+      // Mengirimkan index untuk mengatur urutan delay
+      certEl.innerHTML = this.data.certifications.map((c, index) => this.#generateCertHTML(c, lang, index)).join("");
     }
 
     const bootcampEl = this.#mount("bootcampGrid");
     if (bootcampEl && this.data.bootcamps) {
-      bootcampEl.innerHTML = this.data.bootcamps.map(c => this.#generateCertHTML(c, lang)).join("");
+      // Mengirimkan index untuk mengatur urutan delay
+      bootcampEl.innerHTML = this.data.bootcamps.map((c, index) => this.#generateCertHTML(c, lang, index)).join("");
     }
 
     const seminarEl = this.#mount("seminarGrid");
@@ -345,8 +427,6 @@ class ComponentRenderer {
       const originalRow1 = createFigures(row1Data);
       const originalRow2 = createFigures(row2Data);
 
-      // Sama seperti Pengalaman/Pendidikan: padatkan ke jumlah target GLOBAL,
-      // lalu duplikasi simetris 1x — bukan repeat(3) seperti sebelumnya.
       const paddedRow1 = this.#padItems(row1Data, marqueeMax);
       const paddedRow2 = this.#padItems(row2Data, marqueeMax);
       const duplicateRow1 = createFigures(paddedRow1);
@@ -372,10 +452,11 @@ class ComponentRenderer {
     }
   }
 
-  #generateCertHTML(c, lang) {
+  // Menambahkan parameter index dan CSS inline variabel --card-delay
+  #generateCertHTML(c, lang, index = 0) {
     const nameText = typeof c.name === 'object' ? c.name[lang] : c.name;
     return `
-      <div class="cert-card reveal">
+      <div class="cert-card reveal" style="--card-delay: ${index};">
         <div class="cert-image">${this.#img(c.image, nameText + " - " + c.issuer)}</div>
         <div class="cert-body">
           <h4 class="cert-name">${nameText}</h4>
@@ -396,14 +477,15 @@ class ComponentRenderer {
 
     el.innerHTML = this.data.projects
       .map(
-        (p) => {
+        (p, index) => { // PERBAIKAN: Menambahkan parameter index
           const titleText = typeof p.title === 'object' ? p.title[lang] : p.title;
           const descText = typeof p.description === 'object' ? p.description[lang] : p.description;
           const dateText = typeof p.date === 'object' ? p.date[lang] : p.date;
           const courseText = typeof p.course === 'object' ? p.course[lang] : p.course;
 
           return `
-          <article class="project-card reveal">
+          <!-- PERBAIKAN: Menambahkan inline style CSS variable untuk delay animasi -->
+          <article class="project-card reveal" style="--card-delay: ${index};">
             <div class="project-media" onclick="openLightbox('${p.image}')" style="cursor: zoom-in;">
               <img src="${p.image}" alt="${titleText}" style="width: 100%; height: 100%; object-fit: cover !important;">
               <span class="project-tool-tag">${p.tool}</span>
@@ -425,14 +507,123 @@ class ComponentRenderer {
     const frame = this.#mount("cvEmbed");
     const dl = this.#mount("cvDownloadBtn");
     const dlTop = this.#mount("cvDownloadBtnTop");
-
-    if (frame) frame.setAttribute("src", cv.previewImage);
+    const lang = this.#lang();
 
     [dl, dlTop].forEach((btn) => {
       if (!btn) return;
       btn.setAttribute("href", cv.filePath);
       btn.setAttribute("download", cv.fileName);
     });
+
+    if (!frame) return;
+
+    let images = [];
+    if (Array.isArray(cv.previewImages) && cv.previewImages.length > 0) {
+      images = cv.previewImages;
+    } else if (cv.previewImage) {
+      images = [cv.previewImage];
+    } else {
+      images = [frame.getAttribute('src') || ""];
+    }
+
+    let currentIndex = 0;
+    const parent = frame.parentElement;
+    
+    if (!parent.classList.contains('cv-slider-container')) {
+      parent.classList.add('cv-slider-container');
+      frame.style.display = 'none'; 
+
+      const track = document.createElement('div');
+      track.className = 'cv-slider-track';
+      
+      images.forEach((src, idx) => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'cv-slide-img';
+        img.alt = `CV Page ${idx + 1}`;
+        img.setAttribute('loading', 'lazy');
+        img.setAttribute('data-fallback', ''); 
+        track.appendChild(img);
+      });
+      
+      parent.appendChild(track);
+
+      const controls = document.createElement('div');
+      controls.className = 'cv-controls';
+      controls.id = 'cvControls';
+      
+      const targetFrame = parent.closest('.cv-frame-wrap') || parent;
+      targetFrame.insertAdjacentElement('afterend', controls);
+
+      controls.innerHTML = `
+        <button id="cvPrevBtn" class="btn btn--ghost cv-nav-btn"></button>
+        <span id="cvPageNum"></span>
+        <button id="cvNextBtn" class="btn btn--ghost cv-nav-btn"></button>
+      `;
+
+      const syncWidth = () => {
+        const frameWidth = targetFrame.getBoundingClientRect().width;
+        if (frameWidth > 0) {
+          controls.style.width = frameWidth + 'px'; 
+        }
+      };
+
+      if (window.ResizeObserver) {
+        const observer = new ResizeObserver(() => syncWidth());
+        observer.observe(targetFrame);
+      } else {
+        window.addEventListener('resize', syncWidth);
+      }
+      setTimeout(syncWidth, 150);
+
+      // LOGIKA GESER & HILANGKAN TOMBOL
+      const updateSlider = () => {
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        
+        const pageNum = document.getElementById('cvPageNum');
+        const prevBtn = document.getElementById('cvPrevBtn');
+        const nextBtn = document.getElementById('cvNextBtn');
+        
+        if (pageNum) pageNum.textContent = `${currentIndex + 1} / ${images.length}`;
+        
+        // Logika Fleksibel: Sembunyikan tombol 'Sebelumnya' jika di halaman pertama (index 0)
+        if (prevBtn) {
+          prevBtn.style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+          prevBtn.style.opacity = currentIndex === 0 ? '0' : '1';
+        }
+        
+        // Logika Fleksibel: Sembunyikan tombol 'Selanjutnya' jika di halaman terakhir
+        if (nextBtn) {
+          nextBtn.style.visibility = currentIndex === images.length - 1 ? 'hidden' : 'visible';
+          nextBtn.style.opacity = currentIndex === images.length - 1 ? '0' : '1';
+        }
+
+        // Opsional: Sembunyikan seluruh baris angka dan tombol jika CV cuma 1 halaman
+        if (images.length <= 1) {
+          controls.style.display = 'none';
+        }
+      };
+
+      controls.addEventListener('click', (e) => {
+        const prevBtn = e.target.closest('#cvPrevBtn');
+        const nextBtn = e.target.closest('#cvNextBtn');
+        
+        if (prevBtn && currentIndex > 0) {
+          currentIndex--;
+          updateSlider();
+        } else if (nextBtn && currentIndex < images.length - 1) {
+          currentIndex++;
+          updateSlider();
+        }
+      });
+
+      updateSlider();
+    }
+
+    const prevBtn = document.getElementById('cvPrevBtn');
+    const nextBtn = document.getElementById('cvNextBtn');
+    if (prevBtn) prevBtn.innerHTML = `&larr; ${lang === 'en' ? 'Previous' : 'Sebelumnya'}`;
+    if (nextBtn) nextBtn.innerHTML = `${lang === 'en' ? 'Next' : 'Selanjutnya'} &rarr;`;
   }
 
   #renderFooter() {
@@ -452,3 +643,304 @@ class ComponentRenderer {
     if (year) year.textContent = new Date().getFullYear();
   }
 }
+
+class PortfolioApp {
+  constructor(data) {
+    this.data = data;
+    this.renderer = new ComponentRenderer(data);
+  }
+
+  init() {
+    this.renderer.renderAll();
+
+    this.nav = new NavigationController({
+      headerSelector: "#siteHeader",
+      toggleSelector: "#navToggle",
+      linkSelector: ".nav-link",
+      sectionSelector: "main section[id], main .panel[id]",
+    });
+    this.reveal = new ScrollReveal();
+
+    this.#setCurrentYearFallback();
+    this.setupMarqueeGallery();
+    this.#setupLightbox();
+    this.#setupGridModal();
+  }
+
+  #setCurrentYearFallback() {
+    const el = document.getElementById("footerYear");
+    if (el && !el.textContent) el.textContent = new Date().getFullYear();
+  }
+
+  setupMarqueeGallery() {
+    const marqueeTracks = document.querySelectorAll('.doc-gallery-track');
+    if (marqueeTracks.length === 0) return;
+
+    const PIXELS_PER_SECOND = 50;
+
+    const updateMarqueeSpeed = () => {
+      marqueeTracks.forEach(track => {
+        const totalWidth = track.scrollWidth;
+        if (totalWidth <= 0) return;
+
+        const travelDistance = totalWidth / 2;
+        const duration = travelDistance / PIXELS_PER_SECOND;
+        track.style.animationDuration = `${duration}s`;
+      });
+    };
+
+    updateMarqueeSpeed();
+
+    window.addEventListener('resize', updateMarqueeSpeed);
+    setTimeout(updateMarqueeSpeed, 300);
+
+    const marqueeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState = 'running';
+        } else {
+          entry.target.style.animationPlayState = 'paused';
+        }
+      });
+    }, { threshold: 0, rootMargin: "50px 0px 50px 0px" });
+
+    marqueeTracks.forEach(track => marqueeObserver.observe(track));
+  }
+
+  #setupLightbox() {
+    const lightbox = document.getElementById('imageLightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxDialog = document.querySelector('.lightbox-dialog'); 
+    const closeBtn = document.querySelector('.lightbox-close');
+    const prevBtn = document.querySelector('.lightbox-prev');
+    const nextBtn = document.querySelector('.lightbox-next');
+
+    if (!lightbox) return;
+
+    let currentGallery = [];
+    let currentIndex = 0;
+
+    document.body.addEventListener('click', (e) => {
+      const clickedImg = e.target.closest('.doc-thumb img, .cert-image img, .project-media img');
+      if (!clickedImg) return;
+
+      let container = null;
+
+      if (clickedImg.closest('#gridModalBody')) {
+        container = document.getElementById('gridModalBody');
+        currentGallery = Array.from(container.querySelectorAll('img'));
+      } 
+      else if (clickedImg.closest('.doc-thumb')) {
+        container = clickedImg.closest('.gallery-wrapper');
+        if (container) {
+          currentGallery = Array.from(container.querySelectorAll('.track-original .doc-thumb img'));
+        }
+      } 
+      else if (clickedImg.closest('.cert-image')) {
+        container = clickedImg.closest('.grid'); 
+        if (container) {
+          currentGallery = Array.from(container.querySelectorAll('.cert-image img'));
+        }
+      }
+      else if (clickedImg.closest('.project-media')) {
+        container = clickedImg.closest('#projectGrid'); 
+        if (container) {
+          currentGallery = Array.from(container.querySelectorAll('.project-media img'));
+        }
+      }
+
+      if (container && currentGallery.length > 0) {
+        currentIndex = currentGallery.indexOf(clickedImg);
+        
+        if (currentIndex === -1) {
+          currentIndex = currentGallery.findIndex(img => img.src === clickedImg.src);
+          if (currentIndex === -1) currentIndex = 0;
+        }
+        
+        updateLightboxImage('none'); 
+        lightbox.classList.add('is-open');
+        
+        document.body.classList.add('no-scroll');
+      }
+    });
+
+    const updateLightboxImage = (direction) => {
+      if (currentGallery.length > 0) {
+        lightboxDialog.classList.remove('slide-next', 'slide-prev');
+        void lightboxDialog.offsetWidth; 
+        lightboxImg.src = currentGallery[currentIndex].src;
+        
+        if (direction === 'next') lightboxDialog.classList.add('slide-next');
+        if (direction === 'prev') lightboxDialog.classList.add('slide-prev');
+      }
+    };
+
+    const closeLightbox = () => {
+      lightbox.classList.remove('is-open');
+      document.body.classList.remove('no-scroll');
+      
+      setTimeout(() => { 
+        lightboxImg.src = ''; 
+        lightboxDialog.classList.remove('slide-next', 'slide-prev'); 
+      }, 300); 
+    };
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        currentIndex = (currentIndex + 1) % currentGallery.length; 
+        updateLightboxImage('next'); 
+      });
+    }
+    
+    if (prevBtn) {
+      prevBtn.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        currentIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length; 
+        updateLightboxImage('prev'); 
+      });
+    }
+    
+    if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => { 
+      if (e.target === lightbox) closeLightbox(); 
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (lightbox.classList.contains('is-open')) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); nextBtn.click(); }
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); prevBtn.click(); }
+        else if (e.key === 'Escape') { closeLightbox(); }
+      }
+    });
+  }
+
+  #setupGridModal() {
+    const gridModal = document.getElementById('gridModal');
+    const gridModalBody = document.getElementById('gridModalBody');
+    const gridCloseBtn = document.getElementById('gridCloseBtn');
+
+    if (!gridModal) return;
+
+    const closeGridModal = () => {
+      gridModal.classList.remove('is-open');
+      document.body.classList.remove('no-scroll');
+    };
+
+    window.toggleGallery = (btn) => {
+      const wrapper = btn.closest('.gallery-wrapper');
+      const section = wrapper.closest('section');
+      let itemsToDisplay = [];
+
+      if (section.id === 'sertifikasi') {
+        itemsToDisplay = [...(this.data.seminarsRow1 || []), ...(this.data.seminarsRow2 || [])];
+      } else {
+        const uniqueImages = wrapper.querySelectorAll('.track-original .doc-thumb img');
+        itemsToDisplay = Array.from(uniqueImages).map(img => ({
+          image: img.src,
+          name: img.alt || 'Dokumentasi'
+        }));
+      }
+
+      if (itemsToDisplay.length > 0) {
+        gridModalBody.innerHTML = '';
+        
+        itemsToDisplay.forEach(item => {
+          const figure = document.createElement('figure');
+          const thumb = document.createElement('div');
+          thumb.className = 'doc-thumb';
+          
+          const img = document.createElement('img');
+          img.src = item.image || item.src;
+          img.alt = item.name || item.alt || 'Dokumentasi';
+          img.style.cursor = 'zoom-in';
+
+          thumb.appendChild(img);
+          figure.appendChild(thumb);
+          gridModalBody.appendChild(figure);
+        });
+
+        gridModal.classList.add('is-open');
+        document.body.classList.add('no-scroll');
+      }
+    };
+
+    gridCloseBtn.addEventListener('click', closeGridModal);
+    
+    gridModal.addEventListener('click', (e) => { 
+      if (e.target === gridModal) closeGridModal(); 
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && gridModal.classList.contains('is-open')) {
+        closeGridModal();
+      }
+    });
+  }
+}
+
+let currentLang = localStorage.getItem('selected_lang') || 'id';
+window.currentLang = currentLang;
+let globalApp = null;
+
+function applyLanguage(lang) {
+  currentLang = lang;
+  window.currentLang = lang;
+  localStorage.setItem('selected_lang', lang);
+
+  const translatableElements = document.querySelectorAll('[data-id][data-en]');
+  translatableElements.forEach(el => {
+    el.textContent = el.getAttribute(`data-${lang}`);
+  });
+
+  if (globalApp && globalApp.renderer) {
+    globalApp.renderer.renderAll();
+    globalApp.setupMarqueeGallery();
+    
+    // KUNCI PERBAIKAN: Refresh observer setelah elemen di-render ulang
+    // agar kapsul keahlian muncul kembali!
+    if (globalApp.reveal) {
+      globalApp.reveal.refresh();
+    }
+  }
+
+  const langFlag = document.getElementById('langFlag');
+  const langText = document.getElementById('langText');
+  
+  if (langFlag && langText) {
+    if (lang === 'en') {
+      langText.textContent = 'EN';
+      langFlag.innerHTML = `
+        <svg width="18" height="13" viewBox="0 0 60 30" style="border-radius: 2px; box-shadow: 0 0 1px rgba(0,0,0,0.4); display: block;">
+          <clipPath id="s"><path d="M0,0 v30 h60 v-30 z"/></clipPath>
+          <clipPath id="t"><path d="M30,15 h30 v15 z M30,15 h-30 v-15 z M30,15 h-30 v15 z M30,15 h30 v-15 z"/></clipPath>
+          <g clip-path="url(#s)">
+            <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+            <path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" stroke-width="4" clip-path="url(#t)"/>
+            <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+            <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+          </g>
+        </svg>
+      `;
+    } else {
+      langText.textContent = 'ID';
+      langFlag.innerHTML = `
+        <svg width="18" height="13" viewBox="0 0 18 13" fill="none" style="border-radius: 2px; box-shadow: 0 0 1px rgba(0,0,0,0.4); display: block;">
+          <rect width="18" height="6.5" fill="#E70011"/>
+          <rect y="6.5" width="18" height="6.5" fill="#FFFFFF"/>
+        </svg>
+      `;
+    }
+  }
+}
+
+function toggleLanguage() {
+  const nextLang = currentLang === 'id' ? 'en' : 'id';
+  applyLanguage(nextLang);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  globalApp = new PortfolioApp(PortfolioData);
+  globalApp.init();
+  applyLanguage(currentLang);
+});

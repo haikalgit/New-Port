@@ -20,3 +20,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 ::-webkit-scrollbar-track { background: var(--color-bg); }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: var(--radius-pill); }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+body.no-scroll {
+  overflow: hidden;
+}
