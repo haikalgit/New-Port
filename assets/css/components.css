@@ -268,6 +268,26 @@
 #certGrid, #bootcampGrid { display: flex !important; flex-wrap: wrap; justify-content: flex-start; gap: var(--space-6); }
 #certGrid > *, #bootcampGrid > * { width: 100%; max-width: 340px; margin: 0; }
 
+/* =======================================================
+   ANIMASI SCROLL UNTUK SERTIFIKASI & BOOTCAMP (TERPISAH)
+   ======================================================= */
+/* Kartu bersembunyi di bawah sebelum grid-nya masuk layar */
+#certGrid.reveal .cert-card,
+#bootcampGrid.reveal .cert-card {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+/* Saat grid masing-masing masuk layar, kartu dimunculkan satu per satu */
+#certGrid.reveal.is-visible .cert-card,
+#bootcampGrid.reveal.is-visible .cert-card {
+  opacity: 1;
+  transform: translateY(0);
+  /* Logika Baris: Kartu ke-3 dan ke-4 (baris 2) otomatis memiliki delay lebih besar dari kartu 1 dan 2 */
+  transition-delay: calc(var(--card-delay, 0) * 0.15s); 
+}
+
 /* Cards (Projects) - Full & Clickable */
 .project-card { 
   background: var(--color-white); 
@@ -308,6 +328,22 @@
 .project-link { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; font-size: var(--fs-sm); color: var(--color-primary); margin-top: var(--space-3); }
 .project-link svg { width: 15px; height: 15px; transition: transform var(--transition-base); }
 .project-link:hover svg { transform: translateX(4px); }
+/* =======================================================
+   ANIMASI SCROLL UNTUK PROYEK
+   ======================================================= */
+/* Kartu disembunyikan jika bungkus utamanya (#projectGrid) belum masuk layar */
+#projectGrid.reveal .project-card {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+/* Ketika bungkus utama masuk layar, semua kartu langsung dimunculkan berurutan */
+#projectGrid.reveal.is-visible .project-card {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(var(--card-delay, 0) * 0.15s); 
+}
 
 /* ---------- CV Preview (Border sangat tipis dan sudut lebih kotak) ---------- */
 .cv-frame-wrap { 
@@ -514,4 +550,21 @@
   cursor: not-allowed;
   pointer-events: none;
   background-color: transparent !important;
+}
+
+/* =======================================================
+   ANIMASI SCROLL UNTUK KPI CARDS (DIPERBARUI)
+   ======================================================= */
+/* Kartu disembunyikan jika bungkus utamanya (.kpi-row) belum masuk layar */
+.kpi-row.reveal .kpi-card {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+/* Ketika bungkus utama masuk layar, semua kartu langsung dimunculkan berurutan */
+.kpi-row.reveal.is-visible .kpi-card {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(var(--kpi-delay, 0) * 0.15s); 
 }

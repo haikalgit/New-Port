@@ -2,10 +2,26 @@
  * main.js
  * Titik masuk aplikasi. Menghubungkan data dengan UI dan logika interaksi.
  */
+
+// PERFORMA: helper agar handler resize/scroll tidak dieksekusi
+// berkali-kali per frame — cukup 1x per animation frame.
+function rafThrottle(fn) {
+  let ticking = false;
+  return (...args) => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      fn(...args);
+      ticking = false;
+    });
+  };
+}
+
 class PortfolioApp {
   constructor(data) {
     this.data = data;
     this.renderer = new ComponentRenderer(data);
+    this._marqueeObserver = null; // PERFORMA: simpan observer supaya bisa di-disconnect saat render ulang
   }
 
   init() {
@@ -49,11 +65,16 @@ class PortfolioApp {
 
     updateMarqueeSpeed();
 
-    window.addEventListener('resize', updateMarqueeSpeed);
+    // PERFORMA: resize di-throttle dengan requestAnimationFrame
+    const throttledUpdate = rafThrottle(updateMarqueeSpeed);
+    window.addEventListener('resize', throttledUpdate);
     setTimeout(updateMarqueeSpeed, 300);
 
-    // KUNCI: Animasi di jeda (pause) saat keluar viewport, dilanjutkan (running) saat masuk
-    const marqueeObserver = new IntersectionObserver((entries) => {
+    // PERFORMA: hentikan animasi CSS saat track keluar viewport
+    // (mengurangi kerja compositor saat scroll cepat / banyak galeri sekaligus)
+    if (this._marqueeObserver) this._marqueeObserver.disconnect();
+
+    this._marqueeObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.style.animationPlayState = 'running';
@@ -63,7 +84,7 @@ class PortfolioApp {
       });
     }, { threshold: 0, rootMargin: "50px 0px 50px 0px" });
 
-    marqueeTracks.forEach(track => marqueeObserver.observe(track));
+    marqueeTracks.forEach(track => this._marqueeObserver.observe(track));
   }
 
   #setupLightbox() {
@@ -75,6 +96,35 @@ class PortfolioApp {
     const nextBtn = document.querySelector('.lightbox-next');
 
     if (!lightbox) return;
+
+    // === SWIPE SUPPORT UNTUK MOBILE ===
+    if (lightboxDialog) {
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchEndX = 0;
+      const SWIPE_THRESHOLD = 40;
+
+      lightboxDialog.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+      }, { passive: true });
+
+      lightboxDialog.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const touchEndY = e.changedTouches[0].screenY;
+
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > SWIPE_THRESHOLD) {
+          if (deltaX < 0) {
+            nextBtn && nextBtn.click();
+          } else {
+            prevBtn && prevBtn.click();
+          }
+        }
+      }, { passive: true });
+    }
 
     let currentGallery = [];
     let currentIndex = 0;
@@ -118,8 +168,6 @@ class PortfolioApp {
         
         updateLightboxImage('none'); 
         lightbox.classList.add('is-open');
-        
-        // KUNCI: Kunci scroll body saat Lightbox terbuka
         document.body.classList.add('no-scroll');
       }
     });
@@ -137,8 +185,6 @@ class PortfolioApp {
 
     const closeLightbox = () => {
       lightbox.classList.remove('is-open');
-      
-      // KUNCI: Lepas kunci scroll saat Lightbox tertutup
       document.body.classList.remove('no-scroll');
       
       setTimeout(() => { 
@@ -172,7 +218,7 @@ class PortfolioApp {
       if (lightbox.classList.contains('is-open')) {
         if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); nextBtn.click(); }
         else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); prevBtn.click(); }
-        else if (e.key === 'Escape') { closeLightbox(); } // Tombol ESC
+        else if (e.key === 'Escape') { closeLightbox(); }
       }
     });
   }
@@ -184,10 +230,9 @@ class PortfolioApp {
 
     if (!gridModal) return;
 
-    // FUNGSI UNTUK MENUTUP MODAL
     const closeGridModal = () => {
       gridModal.classList.remove('is-open');
-      document.body.classList.remove('no-scroll'); // Lepaskan scroll body
+      document.body.classList.remove('no-scroll');
     };
 
     window.toggleGallery = (btn) => {
@@ -216,6 +261,8 @@ class PortfolioApp {
           const img = document.createElement('img');
           img.src = item.image || item.src;
           img.alt = item.name || item.alt || 'Dokumentasi';
+          img.loading = 'lazy';           // PERFORMA
+          img.decoding = 'async';         // PERFORMA
           img.style.cursor = 'zoom-in';
 
           thumb.appendChild(img);
@@ -224,7 +271,7 @@ class PortfolioApp {
         });
 
         gridModal.classList.add('is-open');
-        document.body.classList.add('no-scroll'); // Kunci scroll body
+        document.body.classList.add('no-scroll');
       }
     };
 
@@ -234,7 +281,6 @@ class PortfolioApp {
       if (e.target === gridModal) closeGridModal(); 
     });
 
-    // KUNCI: Tombol Escape untuk keluar dari Modal Selengkapnya
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && gridModal.classList.contains('is-open')) {
         closeGridModal();
@@ -255,24 +301,20 @@ function applyLanguage(lang) {
   window.currentLang = lang;
   localStorage.setItem('selected_lang', lang);
 
-  // 1. Menerjemahkan elemen statis di HTML
   const translatableElements = document.querySelectorAll('[data-id][data-en]');
   translatableElements.forEach(el => {
     el.textContent = el.getAttribute(`data-${lang}`);
   });
 
-  // 2. Merender ulang seluruh komponen dinamis
   if (globalApp && globalApp.renderer) {
     globalApp.renderer.renderAll();
-
-    // KUNCI PERBAIKAN: renderAll() di atas menghancurkan & membangun ulang
-    // elemen .doc-gallery-track, jadi kecepatan marquee harus dihitung
-    // ULANG untuk elemen yang baru — kalau tidak, elemen baru akan pakai
-    // durasi default dari CSS (25s) dan mengabaikan PIXELS_PER_SECOND di JS.
     globalApp.setupMarqueeGallery();
+
+    if (globalApp.reveal) {
+      globalApp.reveal.refresh();
+    }
   }
 
-  // 3. Memperbarui ikon bendera SVG & teks tombol navbar
   const langFlag = document.getElementById('langFlag');
   const langText = document.getElementById('langText');
   
@@ -314,7 +356,5 @@ function toggleLanguage() {
 document.addEventListener("DOMContentLoaded", () => {
   globalApp = new PortfolioApp(PortfolioData);
   globalApp.init();
-  
-  // Terapkan bahasa yang tersimpan saat halaman dimuat
   applyLanguage(currentLang);
 });

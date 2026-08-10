@@ -257,6 +257,25 @@
   box-shadow: var(--shadow-md);
 }
 
+/* =======================================================
+   ANIMASI SCROLL UNTUK SERTIFIKASI & BOOTCAMP
+   ======================================================= */
+/* Kartu disembunyikan jika bungkus utamanya belum masuk layar */
+#certGrid.reveal .cert-card,
+#bootcampGrid.reveal .cert-card {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+/* Ketika bungkus utama masuk layar, semua kartu langsung dimunculkan berurutan */
+#certGrid.reveal.is-visible .cert-card,
+#bootcampGrid.reveal.is-visible .cert-card {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(var(--card-delay, 0) * 0.15s); 
+}
+
 /* =========================================================
    LAYOUT & ANIMASI PROJECT CARD (4 KOLOM)
    ========================================================= */
@@ -352,7 +371,7 @@
   );
   z-index: 10;
   /* PERBAIKAN: Jeda awal (0.4s) diubah menjadi 0s agar langsung terbuka saat masuk layar */
-  transition: transform 2.5s cubic-bezier(0.77, 0, 0.175, 1) 0s; 
+  transition: transform 1.8s cubic-bezier(0.77, 0, 0.175, 1) 0s; 
   box-shadow: 0 -10px 25px rgba(134, 182, 246, 0.5); /* Bayangan di bagian atas tirai */
 }
 

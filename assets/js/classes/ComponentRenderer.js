@@ -35,8 +35,14 @@ class ComponentRenderer {
     return document.getElementById(id);
   }
 
-  #img(src, label, extraClass = "") {
-    return `<img src="${src}" data-fallback data-label="${label}" alt="${label}" class="${extraClass}" loading="lazy">`;
+  // PERFORMA: tambah parameter `priority`.
+  // - priority=true  -> loading="eager" + fetchpriority="high" (dipakai HANYA untuk foto hero)
+  // - priority=false -> loading="lazy" + fetchpriority="low" + decoding="async" (semua gambar lain)
+  #img(src, label, extraClass = "", priority = false) {
+    const loadAttr = priority
+      ? `loading="eager" fetchpriority="high"`
+      : `loading="lazy" fetchpriority="low"`;
+    return `<img src="${src}" data-fallback data-label="${label}" alt="${label}" class="${extraClass}" ${loadAttr} decoding="async">`;
   }
 
   #sparkline(values) {
@@ -63,13 +69,16 @@ class ComponentRenderer {
     return padded;
   }
 
+  // PERFORMA: dibatasi maksimal 8, supaya galeri kecil tidak dipaksa
+  // duplikasi foto sampai 14x hanya karena ada galeri lain yang punya 14 foto.
   #getGlobalMarqueeMax() {
     const lengths = [];
     (this.data.experience || []).forEach(exp => lengths.push((exp.gallery || []).length));
     (this.data.education || []).forEach(edu => lengths.push((edu.gallery || []).length));
     lengths.push((this.data.seminarsRow1 || []).length);
     lengths.push((this.data.seminarsRow2 || []).length);
-    return Math.max(1, ...lengths);
+    const MAX_CAP = 8;
+    return Math.min(MAX_CAP, Math.max(1, ...lengths));
   }
 
   #renderNav() {
@@ -104,7 +113,7 @@ class ComponentRenderer {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             </div>
             <div class="photo-inner">
-              ${this.#img(profile.heroPhoto, "Foto Profil " + profile.name)}
+              ${this.#img(profile.heroPhoto, "Foto Profil " + profile.name, "", true)}
             </div>
             <div class="hero-stat-chip hero-stat-chip--1">
               <div class="chip-value">${kpis[0].value}</div>
@@ -161,7 +170,8 @@ class ComponentRenderer {
 
     if (descEl) { descEl.style.opacity = "1"; descEl.style.transform = "translateY(0)"; }
     if (actionsEl) { actionsEl.style.opacity = "1"; actionsEl.style.transform = "translateY(0)"; }
-
+    
+    /*
     kpiCards.forEach((card, index) => {
       setTimeout(() => {
         card.style.opacity = "1";
@@ -169,6 +179,8 @@ class ComponentRenderer {
         setTimeout(() => { card.style.transition = ""; }, 800);
       }, 200 + (index * 150));
     });
+    */
+  
   }
 
   #startTypewriter(text1, text2) {
@@ -223,13 +235,16 @@ class ComponentRenderer {
     const el = this.#mount("kpiRow");
     const lang = this.#lang();
     if (!el) return;
+    el.classList.add("reveal");
     el.innerHTML = this.data.kpis
       .map(
-        (k) => {
+        (k, index) => { 
           const tagText = typeof k.tag === 'object' ? k.tag[lang] : k.tag;
           const labelText = typeof k.label === 'object' ? k.label[lang] : k.label;
+          
+          // Ganti inline style dengan class "reveal" dan CSS variable untuk delay berurutan
           return `
-          <div class="kpi-card" data-tag="${tagText}" style="opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease-out, transform 0.8s ease-out;">
+          <div class="kpi-card reveal" data-tag="${tagText}" style="--kpi-delay: ${index};">
             <div class="kpi-value">${k.value}</div>
             <div class="kpi-label">${labelText}</div>
             ${this.#sparkline(k.spark)}
@@ -400,14 +415,17 @@ class ComponentRenderer {
   #renderCertifications() {
     const certEl = this.#mount("certGrid");
     const lang = this.#lang();
+    
     if (certEl && this.data.certifications) {
-      // Mengirimkan index untuk mengatur urutan delay
+      // Pemicu animasi khusus untuk Sertifikasi
+      certEl.classList.add("reveal"); 
       certEl.innerHTML = this.data.certifications.map((c, index) => this.#generateCertHTML(c, lang, index)).join("");
     }
 
     const bootcampEl = this.#mount("bootcampGrid");
     if (bootcampEl && this.data.bootcamps) {
-      // Mengirimkan index untuk mengatur urutan delay
+      // Pemicu animasi khusus untuk Bootcamp (terpisah dari Sertifikasi)
+      bootcampEl.classList.add("reveal");
       bootcampEl.innerHTML = this.data.bootcamps.map((c, index) => this.#generateCertHTML(c, lang, index)).join("");
     }
 
@@ -433,30 +451,31 @@ class ComponentRenderer {
       const duplicateRow2 = createFigures(paddedRow2);
 
       seminarEl.innerHTML = `
-        <div class="gallery-wrapper">
-          <div class="doc-gallery">
+        <div class="gallery-wrapper" style="display:flex; flex-direction:column; align-items:flex-end; gap:0.75rem; width:100%;">
+          <div class="doc-gallery" style="margin-top:0 !important;">
             <div class="doc-gallery-track">
               <div class="track-original">${originalRow1}</div>
               <div class="track-duplicate">${duplicateRow1}</div>
             </div>
           </div>
-          <div class="doc-gallery second-row" style="margin-top: 1rem;">
+          <div class="doc-gallery second-row" style="margin-top:0 !important;">
             <div class="doc-gallery-track track-reverse">
               <div class="track-original">${originalRow2}</div>
               <div class="track-duplicate">${duplicateRow2}</div>
             </div>
           </div>
-          <button class="btn-view-more" onclick="window.toggleGallery(this)">${viewMoreText}</button>
+          <button class="btn-view-more" onclick="window.toggleGallery(this)" style="margin-top:0.75rem;">${viewMoreText}</button>
         </div>
       `;
     }
   }
 
-  // Menambahkan parameter index dan CSS inline variabel --card-delay
   #generateCertHTML(c, lang, index = 0) {
     const nameText = typeof c.name === 'object' ? c.name[lang] : c.name;
+    
+    // PERHATIKAN: Class 'reveal' dihapus dari .cert-card agar menunggu aba-aba dari Grid Utama
     return `
-      <div class="cert-card reveal" style="--card-delay: ${index};">
+      <div class="cert-card" style="--card-delay: ${index};">
         <div class="cert-image">${this.#img(c.image, nameText + " - " + c.issuer)}</div>
         <div class="cert-body">
           <h4 class="cert-name">${nameText}</h4>
@@ -475,19 +494,22 @@ class ComponentRenderer {
     if (!el) return;
     const detailText = lang === 'en' ? 'Project Detail' : 'Detail Proyek';
 
+    // 1. Tambahkan class 'reveal' pada kontainer utama
+    el.classList.add("reveal");
+
     el.innerHTML = this.data.projects
       .map(
-        (p, index) => { // PERBAIKAN: Menambahkan parameter index
+        (p, index) => {
           const titleText = typeof p.title === 'object' ? p.title[lang] : p.title;
           const descText = typeof p.description === 'object' ? p.description[lang] : p.description;
           const dateText = typeof p.date === 'object' ? p.date[lang] : p.date;
           const courseText = typeof p.course === 'object' ? p.course[lang] : p.course;
 
+          // 2. HAPUS class 'reveal' dari <article class="project-card"> agar tidak menunggu scroll masing-masing
           return `
-          <!-- PERBAIKAN: Menambahkan inline style CSS variable untuk delay animasi -->
-          <article class="project-card reveal" style="--card-delay: ${index};">
+          <article class="project-card" style="--card-delay: ${index};">
             <div class="project-media" onclick="openLightbox('${p.image}')" style="cursor: zoom-in;">
-              <img src="${p.image}" alt="${titleText}" style="width: 100%; height: 100%; object-fit: cover !important;">
+              <img src="${p.image}" alt="${titleText}" loading="lazy" fetchpriority="low" decoding="async" style="width: 100%; height: 100%; object-fit: cover !important;">
               <span class="project-tool-tag">${p.tool}</span>
             </div>
             <div class="project-body">
@@ -541,7 +563,9 @@ class ComponentRenderer {
         img.src = src;
         img.className = 'cv-slide-img';
         img.alt = `CV Page ${idx + 1}`;
-        img.setAttribute('loading', 'lazy');
+        // PERFORMA: halaman pertama CV dimuat lebih dulu, sisanya lazy
+        img.setAttribute('loading', idx === 0 ? 'eager' : 'lazy');
+        img.setAttribute('decoding', 'async');
         img.setAttribute('data-fallback', ''); 
         track.appendChild(img);
       });
@@ -576,7 +600,6 @@ class ComponentRenderer {
       }
       setTimeout(syncWidth, 150);
 
-      // LOGIKA GESER & HILANGKAN TOMBOL
       const updateSlider = () => {
         track.style.transform = `translateX(-${currentIndex * 100}%)`;
         
@@ -586,19 +609,16 @@ class ComponentRenderer {
         
         if (pageNum) pageNum.textContent = `${currentIndex + 1} / ${images.length}`;
         
-        // Logika Fleksibel: Sembunyikan tombol 'Sebelumnya' jika di halaman pertama (index 0)
         if (prevBtn) {
           prevBtn.style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
           prevBtn.style.opacity = currentIndex === 0 ? '0' : '1';
         }
         
-        // Logika Fleksibel: Sembunyikan tombol 'Selanjutnya' jika di halaman terakhir
         if (nextBtn) {
           nextBtn.style.visibility = currentIndex === images.length - 1 ? 'hidden' : 'visible';
           nextBtn.style.opacity = currentIndex === images.length - 1 ? '0' : '1';
         }
 
-        // Opsional: Sembunyikan seluruh baris angka dan tombol jika CV cuma 1 halaman
         if (images.length <= 1) {
           controls.style.display = 'none';
         }
@@ -643,304 +663,3 @@ class ComponentRenderer {
     if (year) year.textContent = new Date().getFullYear();
   }
 }
-
-class PortfolioApp {
-  constructor(data) {
-    this.data = data;
-    this.renderer = new ComponentRenderer(data);
-  }
-
-  init() {
-    this.renderer.renderAll();
-
-    this.nav = new NavigationController({
-      headerSelector: "#siteHeader",
-      toggleSelector: "#navToggle",
-      linkSelector: ".nav-link",
-      sectionSelector: "main section[id], main .panel[id]",
-    });
-    this.reveal = new ScrollReveal();
-
-    this.#setCurrentYearFallback();
-    this.setupMarqueeGallery();
-    this.#setupLightbox();
-    this.#setupGridModal();
-  }
-
-  #setCurrentYearFallback() {
-    const el = document.getElementById("footerYear");
-    if (el && !el.textContent) el.textContent = new Date().getFullYear();
-  }
-
-  setupMarqueeGallery() {
-    const marqueeTracks = document.querySelectorAll('.doc-gallery-track');
-    if (marqueeTracks.length === 0) return;
-
-    const PIXELS_PER_SECOND = 50;
-
-    const updateMarqueeSpeed = () => {
-      marqueeTracks.forEach(track => {
-        const totalWidth = track.scrollWidth;
-        if (totalWidth <= 0) return;
-
-        const travelDistance = totalWidth / 2;
-        const duration = travelDistance / PIXELS_PER_SECOND;
-        track.style.animationDuration = `${duration}s`;
-      });
-    };
-
-    updateMarqueeSpeed();
-
-    window.addEventListener('resize', updateMarqueeSpeed);
-    setTimeout(updateMarqueeSpeed, 300);
-
-    const marqueeObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.style.animationPlayState = 'running';
-        } else {
-          entry.target.style.animationPlayState = 'paused';
-        }
-      });
-    }, { threshold: 0, rootMargin: "50px 0px 50px 0px" });
-
-    marqueeTracks.forEach(track => marqueeObserver.observe(track));
-  }
-
-  #setupLightbox() {
-    const lightbox = document.getElementById('imageLightbox');
-    const lightboxImg = document.getElementById('lightboxImg');
-    const lightboxDialog = document.querySelector('.lightbox-dialog'); 
-    const closeBtn = document.querySelector('.lightbox-close');
-    const prevBtn = document.querySelector('.lightbox-prev');
-    const nextBtn = document.querySelector('.lightbox-next');
-
-    if (!lightbox) return;
-
-    let currentGallery = [];
-    let currentIndex = 0;
-
-    document.body.addEventListener('click', (e) => {
-      const clickedImg = e.target.closest('.doc-thumb img, .cert-image img, .project-media img');
-      if (!clickedImg) return;
-
-      let container = null;
-
-      if (clickedImg.closest('#gridModalBody')) {
-        container = document.getElementById('gridModalBody');
-        currentGallery = Array.from(container.querySelectorAll('img'));
-      } 
-      else if (clickedImg.closest('.doc-thumb')) {
-        container = clickedImg.closest('.gallery-wrapper');
-        if (container) {
-          currentGallery = Array.from(container.querySelectorAll('.track-original .doc-thumb img'));
-        }
-      } 
-      else if (clickedImg.closest('.cert-image')) {
-        container = clickedImg.closest('.grid'); 
-        if (container) {
-          currentGallery = Array.from(container.querySelectorAll('.cert-image img'));
-        }
-      }
-      else if (clickedImg.closest('.project-media')) {
-        container = clickedImg.closest('#projectGrid'); 
-        if (container) {
-          currentGallery = Array.from(container.querySelectorAll('.project-media img'));
-        }
-      }
-
-      if (container && currentGallery.length > 0) {
-        currentIndex = currentGallery.indexOf(clickedImg);
-        
-        if (currentIndex === -1) {
-          currentIndex = currentGallery.findIndex(img => img.src === clickedImg.src);
-          if (currentIndex === -1) currentIndex = 0;
-        }
-        
-        updateLightboxImage('none'); 
-        lightbox.classList.add('is-open');
-        
-        document.body.classList.add('no-scroll');
-      }
-    });
-
-    const updateLightboxImage = (direction) => {
-      if (currentGallery.length > 0) {
-        lightboxDialog.classList.remove('slide-next', 'slide-prev');
-        void lightboxDialog.offsetWidth; 
-        lightboxImg.src = currentGallery[currentIndex].src;
-        
-        if (direction === 'next') lightboxDialog.classList.add('slide-next');
-        if (direction === 'prev') lightboxDialog.classList.add('slide-prev');
-      }
-    };
-
-    const closeLightbox = () => {
-      lightbox.classList.remove('is-open');
-      document.body.classList.remove('no-scroll');
-      
-      setTimeout(() => { 
-        lightboxImg.src = ''; 
-        lightboxDialog.classList.remove('slide-next', 'slide-prev'); 
-      }, 300); 
-    };
-
-    if (nextBtn) {
-      nextBtn.addEventListener('click', (e) => { 
-        e.stopPropagation(); 
-        currentIndex = (currentIndex + 1) % currentGallery.length; 
-        updateLightboxImage('next'); 
-      });
-    }
-    
-    if (prevBtn) {
-      prevBtn.addEventListener('click', (e) => { 
-        e.stopPropagation(); 
-        currentIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length; 
-        updateLightboxImage('prev'); 
-      });
-    }
-    
-    if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
-    lightbox.addEventListener('click', (e) => { 
-      if (e.target === lightbox) closeLightbox(); 
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (lightbox.classList.contains('is-open')) {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); nextBtn.click(); }
-        else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); prevBtn.click(); }
-        else if (e.key === 'Escape') { closeLightbox(); }
-      }
-    });
-  }
-
-  #setupGridModal() {
-    const gridModal = document.getElementById('gridModal');
-    const gridModalBody = document.getElementById('gridModalBody');
-    const gridCloseBtn = document.getElementById('gridCloseBtn');
-
-    if (!gridModal) return;
-
-    const closeGridModal = () => {
-      gridModal.classList.remove('is-open');
-      document.body.classList.remove('no-scroll');
-    };
-
-    window.toggleGallery = (btn) => {
-      const wrapper = btn.closest('.gallery-wrapper');
-      const section = wrapper.closest('section');
-      let itemsToDisplay = [];
-
-      if (section.id === 'sertifikasi') {
-        itemsToDisplay = [...(this.data.seminarsRow1 || []), ...(this.data.seminarsRow2 || [])];
-      } else {
-        const uniqueImages = wrapper.querySelectorAll('.track-original .doc-thumb img');
-        itemsToDisplay = Array.from(uniqueImages).map(img => ({
-          image: img.src,
-          name: img.alt || 'Dokumentasi'
-        }));
-      }
-
-      if (itemsToDisplay.length > 0) {
-        gridModalBody.innerHTML = '';
-        
-        itemsToDisplay.forEach(item => {
-          const figure = document.createElement('figure');
-          const thumb = document.createElement('div');
-          thumb.className = 'doc-thumb';
-          
-          const img = document.createElement('img');
-          img.src = item.image || item.src;
-          img.alt = item.name || item.alt || 'Dokumentasi';
-          img.style.cursor = 'zoom-in';
-
-          thumb.appendChild(img);
-          figure.appendChild(thumb);
-          gridModalBody.appendChild(figure);
-        });
-
-        gridModal.classList.add('is-open');
-        document.body.classList.add('no-scroll');
-      }
-    };
-
-    gridCloseBtn.addEventListener('click', closeGridModal);
-    
-    gridModal.addEventListener('click', (e) => { 
-      if (e.target === gridModal) closeGridModal(); 
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && gridModal.classList.contains('is-open')) {
-        closeGridModal();
-      }
-    });
-  }
-}
-
-let currentLang = localStorage.getItem('selected_lang') || 'id';
-window.currentLang = currentLang;
-let globalApp = null;
-
-function applyLanguage(lang) {
-  currentLang = lang;
-  window.currentLang = lang;
-  localStorage.setItem('selected_lang', lang);
-
-  const translatableElements = document.querySelectorAll('[data-id][data-en]');
-  translatableElements.forEach(el => {
-    el.textContent = el.getAttribute(`data-${lang}`);
-  });
-
-  if (globalApp && globalApp.renderer) {
-    globalApp.renderer.renderAll();
-    globalApp.setupMarqueeGallery();
-    
-    // KUNCI PERBAIKAN: Refresh observer setelah elemen di-render ulang
-    // agar kapsul keahlian muncul kembali!
-    if (globalApp.reveal) {
-      globalApp.reveal.refresh();
-    }
-  }
-
-  const langFlag = document.getElementById('langFlag');
-  const langText = document.getElementById('langText');
-  
-  if (langFlag && langText) {
-    if (lang === 'en') {
-      langText.textContent = 'EN';
-      langFlag.innerHTML = `
-        <svg width="18" height="13" viewBox="0 0 60 30" style="border-radius: 2px; box-shadow: 0 0 1px rgba(0,0,0,0.4); display: block;">
-          <clipPath id="s"><path d="M0,0 v30 h60 v-30 z"/></clipPath>
-          <clipPath id="t"><path d="M30,15 h30 v15 z M30,15 h-30 v-15 z M30,15 h-30 v15 z M30,15 h30 v-15 z"/></clipPath>
-          <g clip-path="url(#s)">
-            <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
-            <path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" stroke-width="4" clip-path="url(#t)"/>
-            <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
-            <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
-          </g>
-        </svg>
-      `;
-    } else {
-      langText.textContent = 'ID';
-      langFlag.innerHTML = `
-        <svg width="18" height="13" viewBox="0 0 18 13" fill="none" style="border-radius: 2px; box-shadow: 0 0 1px rgba(0,0,0,0.4); display: block;">
-          <rect width="18" height="6.5" fill="#E70011"/>
-          <rect y="6.5" width="18" height="6.5" fill="#FFFFFF"/>
-        </svg>
-      `;
-    }
-  }
-}
-
-function toggleLanguage() {
-  const nextLang = currentLang === 'id' ? 'en' : 'id';
-  applyLanguage(nextLang);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  globalApp = new PortfolioApp(PortfolioData);
-  globalApp.init();
-  applyLanguage(currentLang);
-});

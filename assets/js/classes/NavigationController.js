@@ -18,12 +18,14 @@ class NavigationController {
   }
 
   #bindScrollShadow() {
-    const onScroll = () => {
-      this.header.classList.toggle("is-scrolled", window.scrollY > 12);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-  }
+  const onScroll = () => {
+    this.header.classList.toggle("is-scrolled", window.scrollY > 12);
+  };
+  onScroll();
+  // PERFORMA: throttle dengan requestAnimationFrame, bukan tiap event scroll mentah
+  const throttledScroll = rafThrottle(onScroll);
+  window.addEventListener("scroll", throttledScroll, { passive: true });
+}
 
   #bindMobileToggle() {
     if (!this.toggle) return;

@@ -208,3 +208,20 @@
     }
 
 }
+
+/* =========================================================
+   PERFORMA: content-visibility
+   Browser skip perhitungan layout/paint untuk konten yang
+   masih jauh di luar viewport, baru dihitung saat mendekat.
+   ========================================================= */
+.section:not(#beranda) {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 1000px;
+}
+
+.doc-thumb,
+.cert-image,
+.project-media {
+  content-visibility: auto;
+  contain-intrinsic-size: 260px 180px;
+}
