@@ -185,7 +185,7 @@ img[alt*="Pratinjau"],
   .meta-row::-webkit-scrollbar { display: none; }
   
   .meta-pill { 
-    font-size: 0.53rem !important; /* Font diperkecil lagi agar muat 1 baris */
+    font-size: 0.50rem !important; /* Font diperkecil lagi agar muat 1 baris */
     padding: 0.15rem 0.35rem !important; /* Kapsul dibuat lebih tipis/pipih */
     white-space: nowrap !important; 
   }
@@ -352,9 +352,60 @@ img[alt*="Pratinjau"],
   .lightbox-btn { width: 40px; height: 40px; font-size: 16px; }
   .lightbox-prev { left: 10px; }
   .lightbox-next { right: 10px; }
-  .grid-dialog { padding: 1.5rem !important; }
-  .grid-dialog-header { font-size: var(--fs-lg); }
-  .grid-modal-body { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  /* =======================================================
+     MODAL GRID (SEMUA DOKUMENTASI) - MOBILE FIX
+     ======================================================= */
+  .grid-dialog { 
+    padding: 1.25rem !important; 
+    max-height: 75dvh !important; 
+    width: calc(100% - 2rem) !important; 
+    margin: auto !important;
+  }
+  
+  .grid-dialog-header { 
+    font-size: 1.1rem !important; 
+    margin-bottom: 1rem !important; 
+  }
+  
+  .grid-modal-body { 
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; 
+    gap: 0.75rem !important; 
+    
+    /* UBAH BAGIAN INI: Dinaikkan dari 320px menjadi 380px */
+    max-height: 380px !important; 
+    
+    overflow-y: auto !important;
+    overflow-x: hidden !important; 
+    padding-right: 0.5rem !important; 
+  }
+
+  /* KUNCI FIX 2: Kunci elemen di dalamnya agar patuh pada batas kolom */
+  .grid-modal-body figure {
+    width: 100% !important;
+    min-width: 0 !important; /* Paksa grid item tidak mengembang */
+    margin: 0 !important;
+  }
+
+  .grid-modal-body .doc-thumb {
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: 4 / 3 !important; /* Paksa kotak konsisten sejak awal */
+  }
+
+  .grid-modal-body .doc-thumb img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  .lightbox-close {
+    top: -5px !important; 
+    right: -5px !important; 
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 18px !important;
+  }
   
   /* =======================================================
      CV PREVIEW & TOMBOL UNDUH

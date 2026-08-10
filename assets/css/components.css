@@ -203,7 +203,27 @@
 .lightbox-close { position: absolute; top: -15px; right: -15px; width: 36px; height: 36px; background: var(--color-white); color: var(--color-primary-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(11, 61, 79, 0.15); transition: all 0.2s ease; z-index: 2; }
 .lightbox-close:hover { background: var(--color-primary); color: var(--color-white); transform: scale(1.1); }
 .lightbox-btn { position: absolute; top: 50%; transform: translateY(-50%); background: var(--color-white); color: var(--color-primary-dark); border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(11, 61, 79, 0.1); transition: all 0.3s ease; z-index: 10; }
-.lightbox-btn:hover { background: var(--color-primary); color: var(--color-white); transform: translateY(-50%) scale(1.1); }
+/* 1. Pastikan transisi kembalinya warna (saat dilepas) berdurasi 0.5 detik */
+  .lightbox-btn {
+    transition: background 0.5s ease, color 0.5s ease, transform 0.3s ease !important;
+  }
+
+  /* 2. Efek sentuhan/klik (Hanya saat jari/mouse menekan tombol) */
+  .lightbox-btn:active {
+    background: var(--color-primary) !important;
+    color: var(--color-white) !important;
+    transform: translateY(-50%) scale(0.95) !important; /* Efek visual tombol tertekan ke dalam */
+    transition: all 0s !important; /* Warna biru muncul seketika tanpa delay saat disentuh */
+  }
+
+  /* 3. Efek melayang (Hover) HANYA diaktifkan untuk perangkat yang memiliki kursor mouse (PC/Laptop) */
+  @media (hover: hover) and (pointer: fine) {
+    .lightbox-btn:hover { 
+      background: var(--color-primary); 
+      color: var(--color-white); 
+      transform: translateY(-50%) scale(1.1); 
+    }
+  }
 .lightbox-prev { left: 30px; }
 .lightbox-next { right: 30px; }
 .grid-dialog { 

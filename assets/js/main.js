@@ -272,6 +272,8 @@ class PortfolioApp {
 
         gridModal.classList.add('is-open');
         document.body.classList.add('no-scroll');
+        // --- FIX: Kembalikan posisi scroll ke paling atas setiap kali modal dibuka ---
+        gridModalBody.scrollTop = 0;
       }
     };
 
