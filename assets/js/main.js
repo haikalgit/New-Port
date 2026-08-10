@@ -185,7 +185,14 @@ class PortfolioApp {
 
     const closeLightbox = () => {
       lightbox.classList.remove('is-open');
-      document.body.classList.remove('no-scroll');
+      // --- LOGIKA BARU SCROLL LOCK ---
+      // Ambil elemen gridModal untuk mengecek statusnya
+      const gridModal = document.getElementById('gridModal');
+      
+      // Cabut class 'no-scroll' HANYA JIKA gridModal tidak ada ATAU gridModal sedang tertutup
+      if (!gridModal || !gridModal.classList.contains('is-open')) {
+        document.body.classList.remove('no-scroll');
+      }
       
       setTimeout(() => { 
         lightboxImg.src = ''; 

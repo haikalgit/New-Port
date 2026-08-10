@@ -224,7 +224,7 @@ img[alt*="Pratinjau"],
 
   .timeline-body .doc-gallery {
     order: 1;
-    margin-top: 0 !important;
+    margin-top: 1rem !important;
     margin-bottom: 0 !important;
     height: 105px !important; /* Tinggi dikurangi agar foto lebih kecil */
   }
@@ -612,5 +612,231 @@ img[alt*="Pratinjau"],
   
   .cta-panel {
     margin: 0 auto !important;
+  }
+}
+
+/* =======================================================
+   PERBAIKAN KHUSUS TAMPILAN TABLET (768px - 1024px)
+   ======================================================= */
+@media (min-width: 768px) and (max-width: 1024px) {
+  
+  /* 1. PERLEBAR AREA KONTEN 
+     (Mencegah elemen ngumpul di tengah layar) */
+  .container, 
+  section {
+    padding-left: 2.5rem !important;
+    padding-right: 2.5rem !important;
+  }
+  
+  .hero-content, .kpi-row, .timeline-container {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* 2. HERO SECTION 
+     (Perbaiki Nama Terpotong & Lebarkan Teks) */
+  .hero-title {
+    font-size: 3.2rem !important; 
+    white-space: nowrap !important; /* Memaksa nama tetap 1 baris */
+  }
+  
+  .hero-desc {
+    max-width: 85% !important; /* Membuat paragraf deskripsi lebih lega */
+    margin: 0 auto 2rem auto !important;
+  }
+
+  /* 3. KPI CARDS 
+     (Membuat kartu KPI lebih proporsional, tidak kurus) */
+  .kpi-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.5rem !important;
+  }
+
+  /* 4. FOOTER 
+     (Membagi footer menjadi kolom-kolom menyamping secara otomatis) */
+  .footer-content {
+    display: grid !important;
+    /* Rumus sakti: Otomatis membagi kolom berdasarkan ruang yang tersedia */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    gap: 3rem 2rem !important;
+    align-items: start !important;
+  }
+
+  /* 5. NAVBAR FIX 
+     (Merampingkan teks dan jarak agar tidak berdesakan di tablet) */
+     
+  /* Kurangi jarak antar menu */
+  .nav-links, .navbar-nav, nav ul {
+    gap: 0.75rem !important; 
+  }
+  
+  /* Kecilkan ukuran font menu */
+  .nav-link, .nav-item a, nav ul li a {
+    font-size: 0.85rem !important; 
+    padding: 0.5rem 0.25rem !important;
+  }
+  
+  /* Kecilkan sedikit teks nama logo ("M. Haikal") agar memberi ruang */
+  .logo-text, .navbar-brand, .logo span {
+    font-size: 1.1rem !important;
+    margin-right: 0.5rem !important;
+  }
+  
+  /* Rapatkan jarak antara tombol CV dan pemilih bahasa */
+  .nav-actions, .navbar-actions {
+    gap: 0.5rem !important;
+  }
+
+  /* 6. GALERI TIMELINE FIX 
+     (Memperbaiki urutan dan posisi tombol dokumen) */
+  .timeline-body {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* Karena elemen lain (seperti judul dan list) defaultnya memiliki order: 0, 
+     mereka akan tetap aman berada di paling atas */
+     
+  .timeline-body .doc-gallery {
+    order: 1 !important; /* Galeri tepat di bawah list pengalaman */
+  }
+  
+  .timeline-body .doc-caption {
+    order: 2 !important; /* Teks miring keterangan berada di bawah galeri */
+    text-align: center !important; /* Diratakan ke kanan agar searah dengan tombol */
+    width: 100% !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .timeline-body .btn-view-more {
+    order: 3 !important; /* Tombol berada di urutan paling akhir (bawah) */
+    width: max-content !important; /* Mencegah tombol melar sepenuh layar */
+    align-self: flex-end !important; /* Memaksa tombol merapat ke pojok kanan */
+    padding: 0.4rem 1rem !important; /* Merapikan bantalan (padding) tombol */
+  }
+
+  /* 7. SERTIFIKASI & BOOTCAMP FIX 
+     (Menjadikan susunan 3 kolom sejajar dalam satu baris) */
+  #certGrid, 
+  #bootcampGrid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important; /* Memaksa jadi 3 kolom rata */
+    gap: 1.25rem !important; /* Menyesuaikan jarak agar kartu tidak terlalu berdesakan */
+  }
+  
+  /* Sedikit mengecilkan font judul sertifikat agar pas di ruang yang lebih sempit */
+  #certGrid .cert-name, 
+  #bootcampGrid .cert-name {
+    font-size: 0.95rem !important;
+  }
+
+  /* 8. GALERI SEMINAR FIX 
+     (Mengecilkan ukuran sertifikat seminar agar lebih proporsional) */
+  .seminar-gallery-container .doc-gallery {
+    height: 135px !important; /* Mengurangi tinggi baris galeri */
+  }
+  
+  .seminar-gallery-container .doc-gallery figure {
+    width: 185px !important; /* Menyesuaikan lebar bingkai agar tetap proporsional (tidak gepeng) */
+  }
+
+  /* 9. PROYEK FIX 
+     (Menjadikan 3 proyek sejajar dalam 1 baris) */
+  #projectGrid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important; /* Membagi jadi 3 kolom */
+    gap: 1.25rem !important; /* Jarak bisa dibuat sedikit lebih lega */
+  }
+
+  /* Penyesuaian isi kartu proyek agar ukurannya pas (tidak sekecil versi 4 kolom) */
+  #projectGrid .project-card .project-body {
+    padding: 1.25rem !important; 
+  }
+
+  #projectGrid .project-card .project-tool-tag {
+    font-size: 0.65rem !important; 
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  #projectGrid .project-card .project-date {
+    font-size: 0.75rem !important; 
+    margin-bottom: 0.5rem !important;
+  }
+
+  #projectGrid .project-card .project-title {
+    font-size: 1rem !important; 
+    line-height: 1.4 !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  #projectGrid .project-card .project-desc {
+    font-size: 0.8rem !important; 
+    line-height: 1.5 !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  #projectGrid .project-card .project-link {
+    font-size: 0.85rem !important; 
+  }
+
+  /* 10. CV PREVIEW FIX 
+     (Mengecilkan sedikit ukuran wadah CV agar tidak terlalu penuh di layar) */
+  #cvPreview, 
+  .cv-preview-container, 
+  .cv-wrapper {
+    max-width: 85% !important; /* Mengurangi lebar CV menjadi 85% dari layar */
+    margin: 0 auto 1.5rem auto !important; /* Memusatkan posisinya ke tengah */
+  }
+
+  /* =======================================================
+     11. FOOTER FIX (REVISI FINAL)
+     ======================================================= */
+     
+  /* a. Bagi menjadi 2 kolom yang presisi */
+  .footer-content {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* 2 kolom rata kiri-kanan */
+    gap: 2rem !important;
+  }
+  
+  /* b. Ukuran teks biodata dibesarkan agar seimbang */
+  .footer-brand p, 
+  .footer-desc, 
+  .footer-content p {
+    font-size: 0.85rem !important; 
+    line-height: 1.6 !important;
+    margin-top: 1rem !important;
+    opacity: 0.9 !important; 
+  }
+  
+  /* c. Posisikan "Hubungi Saya" di baris bawah, membentang dari kiri ke kanan */
+  .footer-content > div:last-child,
+  .footer-contact {
+    grid-column: 1 / -1 !important; /* Paksa memenuhi seluruh lebar */
+    margin-top: 0.5rem !important;
+    border: none !important; /* Hapus garis aneh yang sebelumnya muncul */
+  }
+  
+  /* d. Jejerkan ikon kontak (Email, LinkedIn, Lokasi) menyamping secara horizontal */
+  .footer-content > div:last-child ul,
+  .footer-contact ul, 
+  .contact-info {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 1.5rem 2.5rem !important; /* Jarak lega antar info kontak */
+    padding: 0 !important;
+    margin-top: 1.25rem !important;
+  }
+  
+  /* e. Rapikan perataan vertikal ikon dan teks kontaknya */
+  .footer-content > div:first-child p,
+  .footer-brand ~ p,
+  .footer-desc {
+    margin-top: -1rem !important;
+    font-size: 1rem !important; /* Ukuran kita naikkan secara paksa */
+    line-height: 1.6 !important;
+    opacity: 0.95 !important; /* Diterangkan sedikit agar tidak terlalu redup */
+    padding-right: 1rem !important; /* Memberi sedikit jarak bernapas di sebelah kanan */
   }
 }

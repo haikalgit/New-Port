@@ -588,3 +588,33 @@
   transform: translateY(0);
   transition-delay: calc(var(--kpi-delay, 0) * 0.15s); 
 }
+
+/* =======================================================
+   GALERI TIMELINE FIX (BERLAKU GLOBAL / DESKTOP)
+   Memperbaiki urutan dan posisi tombol dokumen
+   ======================================================= */
+.timeline-body {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Galeri tepat di bawah list pengalaman */
+.timeline-body .doc-gallery {
+  order: 1 !important; 
+}
+
+/* Teks miring keterangan berada di bawah galeri */
+.timeline-body .doc-caption {
+  order: 2 !important; 
+  text-align: center !important; 
+  width: 100% !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* Tombol berada di urutan paling akhir (bawah) dan merapat ke kanan */
+.timeline-body .btn-view-more {
+  order: 3 !important; 
+  width: max-content !important; /* Mencegah tombol melar */
+  align-self: flex-end !important; /* Merapat ke pojok kanan */
+  padding: 0.4rem 1.2rem !important; 
+}
