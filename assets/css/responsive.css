@@ -357,7 +357,10 @@ img[alt*="Pratinjau"],
      ======================================================= */
   .grid-dialog { 
     padding: 1.25rem !important; 
-    max-height: 75dvh !important; 
+    
+    /* 1. NAIKKAN batas tinggi kotak putih utama (dari 75dvh ke 85dvh) agar punya ruang lebih */
+    max-height: 85dvh !important; 
+    
     width: calc(100% - 2rem) !important; 
     margin: auto !important;
   }
@@ -367,30 +370,34 @@ img[alt*="Pratinjau"],
     margin-bottom: 1rem !important; 
   }
   
+  /* =======================================================
+     MODAL GRID (SEMUA DOKUMENTASI) - MOBILE FIX (FINAL)
+     ======================================================= */
   .grid-modal-body { 
     display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; 
-    gap: 0.75rem !important; 
+    grid-template-columns: repeat(2, 1fr) !important; 
     
-    /* UBAH BAGIAN INI: Dinaikkan dari 320px menjadi 380px */
-    max-height: 380px !important; 
+    /* 1. KUNCI MATI TINGGI FOTO: Setiap foto tingginya pasti 105px */
+    grid-auto-rows: 105px !important; 
+    
+    /* 2. KUNCI MATI JARAK ANTAR FOTO: Pasti 8px */
+    gap: 8px !important; 
+    
+    /* 3. MATEMATIKA PASTI: (105px * 4 baris) + (8px * 3 jarak) = 420 + 24 = 444px */
+    max-height: 444px !important; 
     
     overflow-y: auto !important;
     overflow-x: hidden !important; 
     padding-right: 0.5rem !important; 
   }
 
-  /* KUNCI FIX 2: Kunci elemen di dalamnya agar patuh pada batas kolom */
-  .grid-modal-body figure {
-    width: 100% !important;
-    min-width: 0 !important; /* Paksa grid item tidak mengembang */
-    margin: 0 !important;
-  }
-
+  /* 4. Paksa elemen di dalamnya agar patuh pada ukuran 105px di atas */
+  .grid-modal-body figure, 
   .grid-modal-body .doc-thumb {
     width: 100% !important;
     height: 100% !important;
-    aspect-ratio: 4 / 3 !important; /* Paksa kotak konsisten sejak awal */
+    margin: 0 !important;
+    aspect-ratio: auto !important; /* Matikan rasio dinamis lama */
   }
 
   .grid-modal-body .doc-thumb img {
