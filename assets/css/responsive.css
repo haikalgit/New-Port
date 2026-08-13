@@ -36,6 +36,41 @@ img[alt*="Pratinjau"],
 /* ========================================================= */
 
 
+/* =========================================================
+   MODAL PROJECT DETAIL - FIX UKURAN MOBILE
+   (Disamakan persis dengan .grid-dialog galeri "Semua Dokumentasi")
+   ========================================================= */
+@media (max-width: 768px) {
+  #projectDetailModal .lightbox-dialog {
+    width: calc(100% - 2rem) !important;
+    max-width: calc(100% - 2rem) !important;
+    min-width: auto !important;
+    max-height: 85dvh !important;
+    margin: auto !important;
+    padding: 1.25rem !important;
+  }
+
+  #projectDetailModal #pdHeaderTitle {
+    font-size: 1.1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  #projectDetailModal #projectDetailBody {
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+
+  #projectDetailModal .pd-grid-full { 
+    grid-template-columns: 1fr; 
+    gap: 1.5rem; 
+  }
+  #projectDetailModal .pd-section-box { 
+    margin-bottom: 1.5rem; 
+    padding-bottom: 1.5rem; 
+  }
+}
+
+
 @media (max-width: 1024px) {
   .hero-grid { grid-template-columns: 1fr; text-align: center; }
   .hero-profile-col { align-items: center; }

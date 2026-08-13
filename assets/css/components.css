@@ -618,3 +618,11 @@
   align-self: flex-end !important; /* Merapat ke pojok kanan */
   padding: 0.4rem 1.2rem !important; 
 }
+
+.pd-container {
+  display: flex;
+  flex-direction: column;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  grid-column: 1 / -1;   /* <-- tambahan ini */
+}

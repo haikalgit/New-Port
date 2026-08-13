@@ -309,7 +309,7 @@ class ComponentRenderer {
         const locationText = typeof exp.location === 'object' ? exp.location[lang] : exp.location;
         const pointsArr = typeof exp.points === 'object' && exp.points[lang] ? exp.points[lang] : exp.points;
         const viewMoreText = lang === 'en' ? 'More Documentation ▾' : 'Dokumentasi Selengkapnya ▾';
-        const captionText = lang === 'en' ? 'Developer team activity & meeting documentation' : 'Dokumentasi kegiatan & rapat tim developer';
+        const captionText = lang === 'en' ? 'Documentation of Activities & Achievements' : 'Dokumentasi Kegiatan & Pencapaian';
 
         const galleryItems = exp.gallery
           .map((g) => `<figure><div class="doc-thumb">${this.#img(g.src, g.caption)}</div></figure>`)
@@ -494,34 +494,42 @@ class ComponentRenderer {
     if (!el) return;
     const detailText = lang === 'en' ? 'Project Detail' : 'Detail Proyek';
 
-    // 1. Tambahkan class 'reveal' pada kontainer utama
     el.classList.add("reveal");
 
     el.innerHTML = this.data.projects
-      .map(
-        (p, index) => {
+      .map((p, index) => {
           const titleText = typeof p.title === 'object' ? p.title[lang] : p.title;
           const descText = typeof p.description === 'object' ? p.description[lang] : p.description;
           const dateText = typeof p.date === 'object' ? p.date[lang] : p.date;
           const courseText = typeof p.course === 'object' ? p.course[lang] : p.course;
 
-          // 2. HAPUS class 'reveal' dari <article class="project-card"> agar tidak menunggu scroll masing-masing
+          // 1. Render gambar untuk SLIDER (Klik Foto)
+          const images = p.gallery && p.gallery.length > 0 ? p.gallery : [p.image];
+          const imagesHTML = images.map((imgItem, i) => {
+            const src = typeof imgItem === 'string' ? imgItem : imgItem.src;
+            const isCover = i === 0;
+            const displayStyle = isCover ? 'width: 100%; height: 100%; object-fit: cover !important;' : 'display: none;';
+            return `<img src="${src}" alt="${titleText}" loading="lazy" fetchpriority="low" decoding="async" style="${displayStyle}">`;
+          }).join("");
+
           return `
           <article class="project-card" style="--card-delay: ${index};">
-            <div class="project-media" onclick="openLightbox('${p.image}')" style="cursor: zoom-in;">
-              <img src="${p.image}" alt="${titleText}" loading="lazy" fetchpriority="low" decoding="async" style="width: 100%; height: 100%; object-fit: cover !important;">
+            <!-- KLIK FOTO: Murni membuka slider bawaan (Lightbox) -->
+            <div class="project-media" style="cursor: zoom-in;">
+              ${imagesHTML}
               <span class="project-tool-tag">${p.tool}</span>
             </div>
             <div class="project-body">
               <div class="project-date">${courseText} • ${dateText}</div>
               <h4 class="project-title">${titleText}</h4>
               <p class="project-desc">${descText}</p>
-              <a href="${p.link}" class="project-link">${detailText} ${IconLibrary.get("arrowRight")}</a>
+              
+              <!-- KLIK TOMBOL: Membuka fungsi window.openProjectDetail() -->
+              <a href="javascript:void(0)" onclick="window.openProjectDetail(${index})" class="project-link">${detailText} ${IconLibrary.get("arrowRight")}</a>
             </div>
           </article>`;
         }
-      )
-      .join("");
+      ).join("");
   }
 
   #renderCvPreview() {

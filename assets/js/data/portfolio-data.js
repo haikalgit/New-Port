@@ -87,22 +87,22 @@ const PortfolioData = {
       org: "PT Suryatata Internusa",
       period: { id: "22 Juni – Sekarang", en: "June 22 – Present" },
       location: {
-        id: "Jakarta Pusat, Indonesia",
-        en: "Central Jakarta, Indonesia"
+        id: "Bandung, Indonesia",
+        en: "Bandung, Indonesia"
       },
       logo: "assets/images/experience/sti/logo-sti.jpg",
       points: {
         id: [
-          "Berkolaborasi dengan tim pengembang menggunakan aplikasi internal PROMAN untuk manajemen backlog, pelacakan tugas, dan koordinasi pengembangan.",
-          "Mengembangkan dan menyempurnakan fitur untuk sistem manajemen aset dan ruang rapat menggunakan framework Laravel.",
-          "Meningkatkan aksesibilitas data dengan mengimplementasikan fitur pencarian untuk mengoptimalkan penarikan informasi.",
-          "Mengelola pembaruan fitur dan integrasi kode menggunakan GitLab untuk version control dan kolaborasi tim.",
+          "Mengelola administrasi internal, pengarsipan dokumen, serta pengaturan jadwal operasional perusahaan.",
+          "Menyusun laporan berkala, berita acara, dokumentasi proyek, dan laporan administrasi keuangan untuk kebutuhan manajemen.",
+          "Mengelola proses administrasi penggajian karyawan, mulai dari perhitungan hingga distribusi gaji.",
+          "Mengelola dan menyesuaikan layout gambar teknis proyek, termasuk pengeditan serta penyesuaian format sesuai kebutuhan pekerjaan",
         ],
         en: [
-          "Collaborated with the development team using the internal PROMAN application for backlog management, task tracking, and development coordination.",
-          "Developed and refined features for asset and meeting room management systems using the Laravel framework.",
-          "Improved data accessibility by implementing search features to optimize information retrieval.",
-          "Managed feature updates and code integration using GitLab for version control and team collaboration.",
+          "Manage internal administration, document filing, and operational scheduling to support the company’s daily activities.",
+          "Prepare periodic reports, official meeting records, project documentation, and financial administrative reports for management purposes.",
+          "Manage employee payroll administration, including salary calculations, verification, and distribution.",
+          "Manage and adjust technical drawing layouts for project requirements, including editing and formatting to meet project specifications.n",
         ]
       },
       gallery: [
@@ -154,16 +154,22 @@ const PortfolioData = {
       logo: "assets/images/experience/select-fragz/sf-new-logo-tr.png",
       points: {
         id: [
-          "Berkolaborasi dengan tim pengembang menggunakan aplikasi internal PROMAN untuk manajemen backlog, pelacakan tugas, dan koordinasi pengembangan.",
-          "Mengembangkan dan menyempurnakan fitur untuk sistem manajemen aset dan ruang rapat menggunakan framework Laravel.",
-          "Meningkatkan aksesibilitas data dengan mengimplementasikan fitur pencarian untuk mengoptimalkan penarikan informasi.",
-          "Mengelola pembaruan fitur dan integrasi kode menggunakan GitLab untuk version control dan kolaborasi tim.",
+          "Mengelola bisnis online yang bergerak di bidang parfum dengan fokus pada penjualan parfum decant melalui platform e-commerce dan media sosial.",
+          "Mengelola seluruh operasional bisnis secara mandiri, mulai dari pengadaan produk, pengelolaan stok, pemrosesan pesanan, pengemasan, hingga pengiriman.",
+          "Mengelola katalog produk pada platform e-commerce, termasuk deskripsi produk, harga, foto produk, dan materi promosi.",
+          "Membuat dan mengedit konten visual seperti poster produk, katalog, dan materi promosi untuk mendukung kegiatan pemasaran digital.",
+          "Mengembangkan dan mengelola konten TikTok untuk meningkatkan brand awareness, menjangkau calon pelanggan, dan mempromosikan produk.",
+          "Mengelola sesi TikTok Live untuk memperkenalkan produk, berinteraksi dengan pelanggan, menjawab pertanyaan, dan meningkatkan penjualan secara langsung.",
+          "Memantau penjualan, persediaan produk, respons pelanggan, serta tren pasar untuk mendukung pertumbuhan dan pengembangan bisnis.",
         ],
         en: [
-          "Collaborated with the development team using the internal PROMAN application for backlog management, task tracking, and development coordination.",
-          "Developed and refined features for asset and meeting room management systems using the Laravel framework.",
-          "Improved data accessibility by implementing search features to optimize information retrieval.",
-          "Managed feature updates and code integration using GitLab for version control and team collaboration.",
+          "Manage an online fragrance business specializing in decant perfumes through e-commerce platforms and social media.",
+          "Handle end-to-end business operations, including product sourcing, inventory management, order processing, packaging, and fulfillment.",
+          "Manage e-commerce product listings, including product descriptions, pricing, product photos, and promotional materials.",
+          "Create and edit visual content, including product posters, catalogs, and promotional designs to support digital marketing activities.",
+          "Develop and manage TikTok content to increase brand awareness, engage potential customers, and promote products.",
+          "Host TikTok Live sessions to showcase products, interact with customers, answer inquiries, and drive direct sales.",
+          "Monitor sales performance, inventory, customer feedback, and market trends to support business growth and improve overall operations.",
         ]
       },
       gallery: [
@@ -291,6 +297,68 @@ const PortfolioData = {
 
   projects: [
     {
+      title: { id: "Personal Finance Dashboard", en: "Personal Finance Dashboard" },
+      tool: "Looker Studio",
+      date: { id: "Juli – Agustus 2026", en: "July – August 2026" },
+      course: { id: "Proyek Pribadi", en: "Private Project" },
+      description: {
+        id: "Dashboard interaktif multi-halaman untuk memonitor kesehatan finansial pribadi. Dilengkapi fitur visualisasi cashflow, pengawasan budget harian/bulanan, dan pelacakan tabungan secara terintegrasi.",
+        en: "Interactive multi-page dashboard for monitoring personal financial health. Features cashflow visualizations, daily/monthly budget oversight, and integrated savings tracking."
+      },
+      
+      // PERBARUI BAGIAN GALLERY MENJADI SEPERTI INI:
+      gallery: [
+        { 
+          src: "assets/images/projects/project-4/page-1.jpg", 
+          caption: { id: "Halaman Utama (Overview)", en: "Main Page (Overview)" },
+          description: {
+            id: "Menampilkan ringkasan arus kas dan sisa saldo. Bagian ini dirancang untuk memberikan gambaran cepat mengenai total pemasukan dan pengeluaran bulan berjalan, serta memantau status kesehatan finansial secara keseluruhan.",
+            en: "Shows cash flow summary and remaining balance. This section is designed to provide a quick overview of total income and expenses for the current month, and monitor overall financial health."
+          }
+        },
+        { 
+          src: "assets/images/projects/project-4/page-2.jpg", 
+          caption: { id: "Analisis Pengeluaran Bulanan", en: "Monthly Expense Analysis" },
+          description: {
+            id: "Visualisasi interaktif yang membedah pengeluaran berdasarkan kategori transaksi. Menggunakan diagram lingkaran (pie chart) dan grafik tren untuk membantu mengidentifikasi pos pengeluaran terbesar.",
+            en: "Interactive visualization breaking down expenses by transaction category. Uses pie charts and trend graphs to help identify the largest expense categories."
+          }
+        },
+        { 
+          src: "assets/images/projects/project-4/page-3.jpg", 
+          caption: { id: "Pelacakan Target Tabungan", en: "Savings Target Tracking" },
+          description: {
+            id: "Modul khusus untuk memantau pencapaian target tabungan masa depan. Dilengkapi dengan indikator persentase (progress bar) untuk memastikan alokasi dana darurat tercapai tepat waktu tanpa overbudgeting.",
+            en: "Dedicated module to monitor the achievement of future savings targets. Equipped with percentage indicators (progress bars) to ensure emergency fund allocation is met on time without overbudgeting."
+          }
+        }
+      ],
+
+      // Tambahkan property 'details' untuk Tujuan, Spesifikasi, dan Hasil
+      details: {
+        objective: {
+          id: "Membangun sistem pelacakan keuangan pribadi yang terpusat untuk mengelola arus kas masuk/keluar, mengontrol overbudgeting, dan memastikan target tabungan masa depan dapat tercapai dengan baik.",
+          en: "To build a centralized personal finance tracking system to manage cash flow, control overbudgeting, and ensure future savings targets are met successfully."
+        },
+        specifications: {
+          id: [
+            "Sumber Data: Google Sheets dengan pencatatan manual harian.",
+            "Platform Visualisasi: Google Looker Studio (Laporan 3 Halaman).",
+            "Fitur Utama: Filter rentang tanggal dinamis, perbandingan MoM (Month-over-Month), dan grafik sparkline."
+          ],
+          en: [
+            "Data Source: Google Sheets with daily manual entry.",
+            "Visualization Platform: Google Looker Studio (3-Page Report).",
+            "Key Features: Dynamic date range filters, MoM (Month-over-Month) comparison, and sparkline charts."
+          ]
+        },
+        result: {
+          id: "Berhasil memberikan visibilitas yang jelas terhadap pengeluaran harian, menekan pengeluaran konsumtif hingga 15% di bulan pertama, dan alokasi dana darurat tercapai tepat waktu.",
+          en: "Successfully provided clear visibility into daily expenses, reduced consumptive spending by 15% in the first month, and emergency fund allocation was achieved on time."
+        }
+      },
+    },
+    {
       title: { id: "Dashboard Analisis Penjualan Furnitur", en: "Furniture Sales Analytics Dashboard" },
       tool: "Looker Studio",
       date: { id: "Mei 2026", en: "May 2026" },
@@ -326,18 +394,6 @@ const PortfolioData = {
       image: "assets/images/projects/project-3.jpg",
       link: "#",
     },
-    {
-      title: { id: "Aplikasi Manajemen Toko Kelontong", en: "Grocery Store Management Application" },
-      tool: "Java Swing & MySQL",
-      date: { id: "Mei – Juli 2024", en: "May – July 2024" },
-      course: { id: "Pemrograman Berorientasi Objek", en: "Object-Oriented Programming" },
-      description: {
-        id: "Aplikasi desktop manajemen transaksi dan inventaris toko kelontong dengan fungsi CRUD lengkap, dibangun menerapkan prinsip pemrograman berorientasi objek untuk struktur kode yang rapi dan mudah dirawat.",
-        en: "Grocery store transaction and inventory management desktop application with complete CRUD functions, built applying object-oriented programming principles for clean and maintainable code structures."
-      },
-      image: "assets/images/projects/project-4.jpg",
-      link: "#",
-    },
   ],
 
   cv: {
@@ -347,7 +403,6 @@ const PortfolioData = {
     // 2. Gunakan tanda kurung siku [ ] dan pisahkan dengan koma
     previewImages: [
       ["documents/CV_MuhammadHaikal_DA_Page1.jpg"], 
-      ["documents/CV_MuhammadHaikal_DA_Page2.jpg"],
     ],
   },
 };

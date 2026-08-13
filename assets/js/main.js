@@ -39,6 +39,7 @@ class PortfolioApp {
     this.setupMarqueeGallery();
     this.#setupLightbox();
     this.#setupGridModal();
+    this.#setupProjectDetail();
   }
 
   #setCurrentYearFallback() {
@@ -130,7 +131,8 @@ class PortfolioApp {
     let currentIndex = 0;
 
     document.body.addEventListener('click', (e) => {
-      const clickedImg = e.target.closest('.doc-thumb img, .cert-image img, .project-media img');
+      // TAMBAHAN: Mendeteksi class pd-detail-img
+      const clickedImg = e.target.closest('.doc-thumb img, .cert-image img, .project-media img, .pd-detail-img');
       if (!clickedImg) return;
 
       let container = null;
@@ -152,9 +154,16 @@ class PortfolioApp {
         }
       }
       else if (clickedImg.closest('.project-media')) {
-        container = clickedImg.closest('#projectGrid'); 
+        container = clickedImg.closest('.project-media'); 
         if (container) {
-          currentGallery = Array.from(container.querySelectorAll('.project-media img'));
+          currentGallery = Array.from(container.querySelectorAll('img'));
+        }
+      }
+      // TAMBAHAN: Menangkap gambar dari dalam Modal Detail Proyek
+      else if (clickedImg.classList.contains('pd-detail-img')) {
+        container = clickedImg.closest('#projectDetailBody');
+        if (container) {
+          currentGallery = Array.from(container.querySelectorAll('.pd-detail-img'));
         }
       }
 
@@ -168,6 +177,8 @@ class PortfolioApp {
         
         updateLightboxImage('none'); 
         lightbox.classList.add('is-open');
+        // TAMBAHAN: Paksa Z-Index lebih tinggi agar menutupi Modal Detail
+        lightbox.style.zIndex = '9999999';
         document.body.classList.add('no-scroll');
       }
     });
@@ -185,12 +196,16 @@ class PortfolioApp {
 
     const closeLightbox = () => {
       lightbox.classList.remove('is-open');
-      // --- LOGIKA BARU SCROLL LOCK ---
-      // Ambil elemen gridModal untuk mengecek statusnya
-      const gridModal = document.getElementById('gridModal');
       
-      // Cabut class 'no-scroll' HANYA JIKA gridModal tidak ada ATAU gridModal sedang tertutup
-      if (!gridModal || !gridModal.classList.contains('is-open')) {
+      const gridModal = document.getElementById('gridModal');
+      const pdModal = document.getElementById('projectDetailModal');
+      
+      // TAMBAHAN PENGAMANAN SCROLL: 
+      // Hanya izinkan scroll jika KEDUA modal sedang tertutup.
+      const isGridOpen = gridModal && gridModal.classList.contains('is-open');
+      const isPdOpen = pdModal && pdModal.classList.contains('is-open');
+      
+      if (!isGridOpen && !isPdOpen) {
         document.body.classList.remove('no-scroll');
       }
       
@@ -223,9 +238,20 @@ class PortfolioApp {
 
     document.addEventListener('keydown', (e) => {
       if (lightbox.classList.contains('is-open')) {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); nextBtn.click(); }
-        else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); prevBtn.click(); }
-        else if (e.key === 'Escape') { closeLightbox(); }
+        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { 
+          e.preventDefault(); 
+          nextBtn.click(); 
+        }
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { 
+          e.preventDefault(); 
+          prevBtn.click(); 
+        }
+        else if (e.key === 'Escape') { 
+          // 3 BARIS INI ADALAH KUNCI RAHASIANYA
+          e.preventDefault();
+          e.stopImmediatePropagation(); // Mencegah modal di bawahnya ikut tertutup
+          closeLightbox(); 
+        }
       }
     });
   }
@@ -292,10 +318,184 @@ class PortfolioApp {
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && gridModal.classList.contains('is-open')) {
+        // CEGAH TUTUP JIKA: Lightbox foto (imageLightbox) sedang terbuka
+        const imageLightbox = document.getElementById('imageLightbox');
+        if (imageLightbox && imageLightbox.classList.contains('is-open')) {
+          return; // Hentikan proses, biarkan fungsi Lightbox yang menutup fotonya
+        }
         closeGridModal();
       }
     });
   }
+
+  #setupProjectDetail() {
+    const pdModal = document.getElementById('projectDetailModal');
+    const pdCloseBtn = document.getElementById('projectDetailCloseBtn');
+    const pdBody = document.getElementById('projectDetailBody');
+    const pdTitle = document.getElementById('pdHeaderTitle');
+
+    window.openProjectDetail = (index) => {
+      if (!pdModal || !pdBody) return;
+
+      const project = PortfolioData.projects[index];
+      if (!project) return;
+      const lang = window.currentLang || 'id';
+
+      pdTitle.textContent = typeof project.title === 'object' ? project.title[lang] : project.title;
+      pdBody.innerHTML = '';
+
+      let contentHTML = `
+        <style>
+          /* =====================================================
+             FIX UTAMA: #projectDetailBody memakai class yang SAMA
+             (.grid-modal-body) dengan galeri foto #gridModalBody.
+             Class itu di-set jadi CSS Grid dengan max-height terkunci
+             (khusus untuk thumbnail foto), sehingga modal proyek ikut
+             kepotong kecil. Override di bawah "membebaskan" 
+             #projectDetailBody dari aturan grid galeri tersebut,
+             baik di desktop maupun mobile.
+             ===================================================== */
+          #projectDetailModal #projectDetailBody.grid-modal-body {
+            display: block !important;
+            grid-template-columns: none !important;
+            grid-auto-rows: unset !important;
+            gap: 0 !important;
+            max-height: none !important;
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+          }
+
+          .pd-container { display: flex; flex-direction: column; width: 100% !important; box-sizing: border-box !important; grid-column: 1 / -1; }
+          
+          /* MEMBUAT SETIAP KOTAK BAGIAN ATAS MEMBENTANG PENUH 100% TANPA SISA KOSONG */
+          .pd-section-box { width: 100% !important; max-width: 100% !important; margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); box-sizing: border-box !important; }
+          .pd-section-box.no-border { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+          
+          /* TATA LETAK BAWAH: FOTO DI KIRI, TEKS DI KANAN (LEBAR PENUH) */
+          .pd-grid-full { display: grid; grid-template-columns: 200px 1fr; gap: 2.5rem; width: 100% !important; align-items: start; }
+          
+          .pd-subtitle { font-size: 1.1rem; color: var(--color-heading); border-bottom: 2px solid var(--color-primary); display: inline-block; margin-bottom: 0.5rem; padding-bottom: 0.1rem; }
+          .pd-text { color: var(--color-text); font-size: 0.95rem; line-height: 1.6; text-align: justify; width: 100% !important; margin: 0; }
+          .pd-list { width: 100% !important; padding-left: 1.2rem; margin: 0; color: var(--color-text); line-height: 1.6; }
+          .pd-caption { font-weight: 700; color: var(--color-heading); text-align: center; margin-top: 0; margin-bottom: 0.5rem; font-size: 0.8rem; }
+
+          @media (max-width: 768px) {
+            #projectDetailModal .lightbox-dialog {
+              width: calc(100% - 2rem) !important;
+              max-width: calc(100% - 2rem) !important;
+              min-width: auto !important;
+              max-height: 85dvh !important;
+              margin: auto !important;
+              padding: 1.25rem !important;
+            }
+            .pd-grid-full { grid-template-columns: 1fr; gap: 1rem; }
+            .pd-section-box { margin-bottom: 1rem !important; padding-bottom: 1rem !important; }
+            .pd-section-box.no-border { margin-bottom: 0 !important; padding-bottom: 0 !important; }
+
+            /* Perkecil subjudul & isi teks di mobile */
+            .pd-subtitle { font-size: 0.8rem !important; margin-bottom: 0.4rem !important; }
+            .pd-text { font-size: 0.65rem !important; line-height: 1.5 !important; }
+            .pd-list { font-size: 0.65rem !important; line-height: 1.5 !important; }
+            .pd-list li { margin-bottom: 0.25rem !important; }
+            .pd-caption { font-size: 0.8rem !important; }
+
+            /* Perkecil ukuran gambar galeri agar tidak memenuhi lebar penuh */
+            .pd-grid-full > div:first-child {
+              max-width: 200px !important;
+              margin: 0 auto !important;
+            }
+          }
+        </style>
+        
+        <div class="pd-container">
+          <!-- 1. Penjelasan Proyek (Lebar Penuh) -->
+          <div class="pd-section-box">
+            <h4 class="pd-subtitle">Penjelasan Proyek</h4>
+            <p class="pd-text">${typeof project.description === 'object' ? project.description[lang] : project.description}</p>
+          </div>
+
+          <!-- Detail Lainnya (Tujuan, Spesifikasi, Hasil - Lebar Penuh) -->
+          ${project.details ? (() => {
+            const d = project.details;
+            const obj = d.objective ? (typeof d.objective === 'object' ? d.objective[lang] : d.objective) : '';
+            const res = d.result ? (typeof d.result === 'object' ? d.result[lang] : d.result) : '';
+            
+            let specsHTML = '';
+            if (d.specifications) {
+              const specData = typeof d.specifications === 'object' && Array.isArray(d.specifications[lang]) ? d.specifications[lang] : d.specifications;
+              if (Array.isArray(specData)) {
+                specsHTML = `<ul class="pd-list">` + specData.map(s => `<li style="margin-bottom: 0.3rem;">${s}</li>`).join('') + `</ul>`;
+              } else {
+                specsHTML = `<p class="pd-text">${specData}</p>`;
+              }
+            }
+
+            let detailsBlock = '';
+            if (obj) detailsBlock += `<div class="pd-section-box"><h4 class="pd-subtitle">Tujuan Proyek</h4><p class="pd-text">${obj}</p></div>`;
+            if (specsHTML) detailsBlock += `<div class="pd-section-box"><h4 class="pd-subtitle">Spesifikasi & Tools</h4>${specsHTML}</div>`;
+            if (res) detailsBlock += `<div class="pd-section-box"><h4 class="pd-subtitle">Hasil & Dampak</h4><p class="pd-text">${res}</p></div>`;
+            return detailsBlock;
+          })() : ''}
+
+          <!-- 2. Galeri Foto & Penjelasan Foto -->
+          <div style="display: flex; flex-direction: column; width: 100%;">
+            ${(project.gallery || [project.image]).map((img, i) => {
+              const src = typeof img === 'string' ? img : img.src;
+              const caption = typeof img === 'string' ? '' : (typeof img.caption === 'object' ? img.caption[lang] : (img.caption || ''));
+              const desc = typeof img === 'string' ? '' : (typeof img.description === 'object' ? img.description[lang] : (img.description || ''));
+              const isLast = i === (project.gallery || [project.image]).length - 1;
+
+              return `
+                <div class="pd-section-box ${isLast ? 'no-border' : ''}">
+                  <div class="pd-grid-full">
+                    <div>
+                      ${caption ? `<div class="pd-caption">${caption}</div>` : ''}
+                      <div style="border-radius: 8px; overflow: hidden; border: 1px solid var(--color-border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                        <img src="${src}" class="pd-detail-img" style="width: 100%; height: auto; display: block; cursor: zoom-in;" loading="lazy">
+                      </div>
+                    </div>
+                    <div>
+                      ${desc ? `
+                        <h4 class="pd-subtitle">Penjelasan Foto</h4>
+                        <p class="pd-text">${desc}</p>
+                      ` : ''}
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+
+      pdBody.innerHTML = contentHTML;
+      pdModal.classList.add('is-open');
+      document.body.classList.add('no-scroll');
+      
+      const dialogEl = pdModal.querySelector('.lightbox-dialog');
+      if (dialogEl) dialogEl.scrollTop = 0;
+    };
+
+    if (!pdModal) return;
+    const closePD = () => {
+      pdModal.classList.remove('is-open');
+      document.body.classList.remove('no-scroll');
+    };
+    if (pdCloseBtn) pdCloseBtn.addEventListener('click', closePD);
+    pdModal.addEventListener('click', (e) => { 
+      if (e.target === pdModal) closePD(); 
+    });
+
+    // Close modal dengan tombol Esc
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && pdModal.classList.contains('is-open')) {
+        closePD();
+      }
+    });
+  }
+
 }
 
 // =========================================================
