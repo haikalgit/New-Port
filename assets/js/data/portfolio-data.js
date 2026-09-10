@@ -559,8 +559,8 @@ const PortfolioData = {
 ],
 
   cv: {
-    fileName: "CV_MuhammadHaikal_DA.pdf",
-    filePath: "documents/CV_MuhammadHaikal_DA.pdf",
+    fileName: "CV_MuhammadHaikal.pdf",
+    filePath: "documents/CV_MuhammadHaikal.pdf",
     // 1. Ubah namanya menjadi previewImages
     // 2. Gunakan tanda kurung siku [ ] dan pisahkan dengan koma
     previewImages: [
