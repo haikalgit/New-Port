@@ -334,6 +334,15 @@ class PortfolioApp {
     const pdBody = document.getElementById('projectDetailBody');
     const pdTitle = document.getElementById('pdHeaderTitle');
 
+    // FIX: helper terpusat untuk reset scroll modal detail proyek ke posisi paling atas.
+    // Dipakai baik saat modal dibuka (proyek baru) maupun saat ditutup, supaya
+    // konsisten dan tidak bergantung urutan event.
+    const resetPdScroll = () => {
+      if (pdBody) pdBody.scrollTop = 0;
+      const dialogEl = pdModal.querySelector('.lightbox-dialog');
+      if (dialogEl) dialogEl.scrollTop = 0;
+    };
+
     window.openProjectDetail = (index) => {
       if (!pdModal || !pdBody) return;
 
@@ -473,13 +482,22 @@ class PortfolioApp {
       pdBody.innerHTML = contentHTML;
       pdModal.classList.add('is-open');
       document.body.classList.add('no-scroll');
-      
-      const dialogEl = pdModal.querySelector('.lightbox-dialog');
-      if (dialogEl) dialogEl.scrollTop = 0;
+
+      // FIX: reset scroll SETELAH modal terlihat & konten baru ter-render.
+      // requestAnimationFrame memastikan browser sudah selesai layout dulu,
+      // jadi scrollTop = 0 benar-benar "kena" (tidak diabaikan seperti saat
+      // elemen masih display:none atau belum sempat di-layout ulang).
+      requestAnimationFrame(resetPdScroll);
     };
 
     if (!pdModal) return;
     const closePD = () => {
+      // FIX: reset scroll SEBELUM modal disembunyikan (class is-open dilepas).
+      // Kalau scrollTop diset SESUDAH elemen disembunyikan (display:none via CSS),
+      // browser mengabaikan perubahan tsb karena tidak ada area scroll aktif untuk
+      // di-reset — inilah sebab bug "masih di bawah saat dibuka lagi".
+      resetPdScroll();
+
       pdModal.classList.remove('is-open');
       document.body.classList.remove('no-scroll');
     };

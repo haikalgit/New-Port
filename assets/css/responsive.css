@@ -40,6 +40,7 @@ img[alt*="Pratinjau"],
    MODAL PROJECT DETAIL - FIX UKURAN MOBILE
    (Disamakan persis dengan .grid-dialog galeri "Semua Dokumentasi")
    ========================================================= */
+
 @media (max-width: 768px) {
   #projectDetailModal .lightbox-dialog {
     width: calc(100% - 2rem) !important;
